@@ -1,98 +1,237 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WayFarer SOS Alert</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        base: '#09090b', surface: '#18181b', accent: '#06b6d4', danger: '#ef4444'
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WayFarer SOS Alert</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            base: "#0b1121",
+                            surface: "#111827",
+                            accent: "#22d3ee",
+                            accentStrong: "#38bdf8",
+                            danger: "#ef4444",
+                        },
+                        fontFamily: { sans: ["Inter", "sans-serif"] },
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                },
+            };
+        </script>
+        <style>
+            body {
+                background-color: #0b1121;
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                -webkit-tap-highlight-color: transparent;
+                background-image:
+                    radial-gradient(
+                        circle at 20% 20%,
+                        rgba(34, 211, 238, 0.12) 0%,
+                        transparent 55%
+                    ),
+                    radial-gradient(
+                        circle at 80% 30%,
+                        rgba(59, 130, 246, 0.12) 0%,
+                        transparent 55%
+                    );
+            }
+            @keyframes pulse-out {
+                0% {
+                    transform: scale(1);
+                    opacity: 0.4;
+                }
+                100% {
+                    transform: scale(1.5);
+                    opacity: 0;
                 }
             }
-        }
-    </script>
-    <style>
-        body { background-color: #000; min-height: 100vh; display: flex; justify-content: center; align-items: center; -webkit-tap-highlight-color: transparent; }
-        @keyframes pulse-out { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(1.5); opacity: 0; } }
-        .sos-pulse { animation: pulse-out 2s infinite ease-out; }
-    </style>
-</head>
-<body>
-    <div class="w-[375px] h-[812px] bg-base relative overflow-hidden flex flex-col border-8 border-zinc-900 rounded-[40px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]">
-        
-        <!-- Header -->
-        <header class="pt-14 px-5 pb-5 flex items-center justify-between">
-            <a href="index.html" class="text-white hover:text-accent transition-colors flex items-center p-2 -ml-2"><i data-lucide="chevron-left" class="w-6 h-6"></i></a>
-            <h1 class="text-xs uppercase tracking-[0.2em] font-black text-zinc-300 flex-1 text-center">Emergency Alert</h1>
-            <div class="w-10"></div> <!-- Spacer -->
-        </header>
+            .sos-pulse {
+                animation: pulse-out 2s infinite ease-out;
+            }
+        </style>
+    </head>
+    <body>
+        <div
+            class="w-[375px] h-[812px] bg-base relative overflow-hidden flex flex-col border-8 border-zinc-900 rounded-[40px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]"
+        >
+            <!-- Header -->
+            <header class="pt-14 px-5 pb-5 flex items-center justify-between">
+                <a
+                    href="index.html"
+                    class="text-white hover:text-accent transition-colors flex items-center p-2 -ml-2"
+                    ><i data-lucide="chevron-left" class="w-6 h-6"></i
+                ></a>
+                <h1
+                    class="text-xs uppercase tracking-[0.2em] font-black text-zinc-300 flex-1 text-center"
+                >
+                    Emergency Alert
+                </h1>
+                <div class="w-10"></div>
+                <!-- Spacer -->
+            </header>
 
-        <!-- SOS Trigger Area -->
-        <div class="flex-1 flex flex-col items-center justify-center p-5">
-            <div class="relative w-[240px] h-[240px] flex justify-center items-center mb-10">
-                <div class="absolute w-full h-full bg-danger rounded-full opacity-30 sos-pulse"></div>
-                <div class="relative w-[210px] h-[210px] bg-gradient-to-br from-red-500 to-red-700 rounded-full flex justify-center items-center shadow-[0_0_60px_rgba(239,68,68,0.6)] border-8 border-white/10 z-10 cursor-pointer active:scale-95 transition-transform">
-                    <span class="text-5xl font-black text-white tracking-tighter">SOS</span>
+            <!-- SOS Trigger Area -->
+            <div class="flex-1 flex flex-col items-center justify-center p-5">
+                <div
+                    class="relative w-[240px] h-[240px] flex justify-center items-center mb-10"
+                >
+                    <div
+                        class="absolute w-full h-full bg-danger rounded-full opacity-30 sos-pulse"
+                    ></div>
+                    <div
+                        class="relative w-[210px] h-[210px] bg-gradient-to-br from-red-500 to-red-700 rounded-full flex justify-center items-center shadow-[0_0_60px_rgba(239,68,68,0.6)] border-8 border-white/10 z-10 cursor-pointer active:scale-95 transition-transform"
+                    >
+                        <span
+                            class="text-5xl font-black text-white tracking-tighter"
+                            >SOS</span
+                        >
+                    </div>
+                </div>
+                <p
+                    class="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-4"
+                >
+                    Hold to activate emergency alert
+                </p>
+                <a
+                    href="index.html"
+                    class="text-zinc-400 text-sm font-semibold hover:text-white transition-colors bg-white/5 px-6 py-2 rounded-full border border-white/10"
+                    >Cancel</a
+                >
+            </div>
+
+            <!-- Quick Actions Row -->
+            <div class="grid grid-cols-3 gap-3 px-5 pb-8">
+                <div
+                    class="bg-surface border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-md"
+                >
+                    <div class="bg-cyan-500/10 p-2 rounded-full">
+                        <i
+                            data-lucide="map-pin"
+                            class="text-accent w-5 h-5"
+                        ></i>
+                    </div>
+                    <span
+                        class="text-[10px] text-zinc-300 font-bold text-center uppercase tracking-wide"
+                        >Location</span
+                    >
+                </div>
+                <div
+                    class="bg-surface border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-md"
+                >
+                    <div class="bg-cyan-500/10 p-2 rounded-full">
+                        <i
+                            data-lucide="phone-forwarded"
+                            class="text-accent w-5 h-5"
+                        ></i>
+                    </div>
+                    <span
+                        class="text-[10px] text-zinc-300 font-bold text-center uppercase tracking-wide"
+                        >Security</span
+                    >
+                </div>
+                <div
+                    class="bg-surface border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-md"
+                >
+                    <div class="bg-cyan-500/10 p-2 rounded-full">
+                        <i
+                            data-lucide="message-square"
+                            class="text-accent w-5 h-5"
+                        ></i>
+                    </div>
+                    <span
+                        class="text-[10px] text-zinc-300 font-bold text-center uppercase tracking-wide"
+                        >Message</span
+                    >
                 </div>
             </div>
-            <p class="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-4">Hold to activate emergency alert</p>
-            <a href="index.html" class="text-zinc-400 text-sm font-semibold hover:text-white transition-colors bg-white/5 px-6 py-2 rounded-full border border-white/10">Cancel</a>
-        </div>
 
-        <!-- Quick Actions Row -->
-        <div class="grid grid-cols-3 gap-3 px-5 pb-8">
-            <div class="bg-surface border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-md">
-                <div class="bg-cyan-500/10 p-2 rounded-full"><i data-lucide="map-pin" class="text-accent w-5 h-5"></i></div>
-                <span class="text-[10px] text-zinc-300 font-bold text-center uppercase tracking-wide">Location</span>
-            </div>
-            <div class="bg-surface border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-md">
-                <div class="bg-cyan-500/10 p-2 rounded-full"><i data-lucide="phone-forwarded" class="text-accent w-5 h-5"></i></div>
-                <span class="text-[10px] text-zinc-300 font-bold text-center uppercase tracking-wide">Security</span>
-            </div>
-            <div class="bg-surface border border-white/5 rounded-2xl p-4 flex flex-col items-center gap-3 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all shadow-md">
-                <div class="bg-cyan-500/10 p-2 rounded-full"><i data-lucide="message-square" class="text-accent w-5 h-5"></i></div>
-                <span class="text-[10px] text-zinc-300 font-bold text-center uppercase tracking-wide">Message</span>
-            </div>
-        </div>
+            <!-- Recent Alerts -->
+            <div class="px-5 pb-28">
+                <span
+                    class="text-[10px] uppercase text-zinc-500 font-black tracking-widest mb-4 block"
+                    >Recent Activity</span
+                >
 
-        <!-- Recent Alerts -->
-        <div class="px-5 pb-28">
-            <span class="text-[10px] uppercase text-zinc-500 font-black tracking-widest mb-4 block">Recent Activity</span>
-            
-            <div class="bg-zinc-900/80 border border-white/5 rounded-2xl p-4 flex justify-between items-center mb-3 hover:bg-white/5 transition-colors">
-                <div>
-                    <h4 class="text-sm text-white font-extrabold mb-1 tracking-tight">Industrial Zone 4</h4>
-                    <p class="text-[11px] text-zinc-400 font-semibold">Today, 12:40 PM • <span class="text-accent">GPS Active</span></p>
+                <div
+                    class="bg-zinc-900/80 border border-white/5 rounded-2xl p-4 flex justify-between items-center mb-3 hover:bg-white/5 transition-colors"
+                >
+                    <div>
+                        <h4
+                            class="text-sm text-white font-extrabold mb-1 tracking-tight"
+                        >
+                            Industrial Zone 4
+                        </h4>
+                        <p class="text-[11px] text-zinc-400 font-semibold">
+                            Today, 12:40 PM •
+                            <span class="text-accent">GPS Active</span>
+                        </p>
+                    </div>
+                    <span
+                        class="text-[9px] px-2 py-1 rounded-md font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20"
+                        >Active</span
+                    >
                 </div>
-                <span class="text-[9px] px-2 py-1 rounded-md font-black uppercase tracking-widest bg-red-500/10 text-red-500 border border-red-500/20">Active</span>
+
+                <div
+                    class="bg-zinc-900/80 border border-white/5 rounded-2xl p-4 flex justify-between items-center hover:bg-white/5 transition-colors"
+                >
+                    <div>
+                        <h4
+                            class="text-sm text-white font-extrabold mb-1 tracking-tight"
+                        >
+                            South Campus Park
+                        </h4>
+                        <p class="text-[11px] text-zinc-400 font-semibold">
+                            Yesterday, 08:15 PM
+                        </p>
+                    </div>
+                    <span
+                        class="text-[9px] px-2 py-1 rounded-md font-black uppercase tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                        >Resolved</span
+                    >
+                </div>
             </div>
 
-            <div class="bg-zinc-900/80 border border-white/5 rounded-2xl p-4 flex justify-between items-center hover:bg-white/5 transition-colors">
-                <div>
-                    <h4 class="text-sm text-white font-extrabold mb-1 tracking-tight">South Campus Park</h4>
-                    <p class="text-[11px] text-zinc-400 font-semibold">Yesterday, 08:15 PM</p>
+            <!-- Bottom Navigation -->
+            <nav
+                class="absolute bottom-0 left-0 right-0 h-[85px] bg-base/90 backdrop-blur-xl border-t border-white/5 flex justify-around items-center pb-6 z-50"
+            >
+                <div
+                    class="text-zinc-500 hover:text-white cursor-pointer transition-colors p-2"
+                >
+                    <i data-lucide="map" class="w-6 h-6"></i>
                 </div>
-                <span class="text-[9px] px-2 py-1 rounded-md font-black uppercase tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Resolved</span>
-            </div>
+                <div
+                    class="text-accent cursor-pointer drop-shadow-[0_0_15px_rgba(6,182,212,0.6)] p-2 -mt-2"
+                >
+                    <i data-lucide="shield-alert" class="w-7 h-7"></i>
+                </div>
+                <div
+                    class="text-zinc-500 hover:text-white cursor-pointer transition-colors p-2"
+                >
+                    <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+                <div
+                    class="text-zinc-500 hover:text-white cursor-pointer transition-colors p-2"
+                >
+                    <i data-lucide="settings" class="w-6 h-6"></i>
+                </div>
+            </nav>
         </div>
 
-        <!-- Bottom Navigation -->
-        <nav class="absolute bottom-0 left-0 right-0 h-[85px] bg-base/90 backdrop-blur-xl border-t border-white/5 flex justify-around items-center pb-6 z-50">
-            <div class="text-zinc-500 hover:text-white cursor-pointer transition-colors p-2"><i data-lucide="map" class="w-6 h-6"></i></div>
-            <div class="text-accent cursor-pointer drop-shadow-[0_0_15px_rgba(6,182,212,0.6)] p-2 -mt-2"><i data-lucide="shield-alert" class="w-7 h-7"></i></div>
-            <div class="text-zinc-500 hover:text-white cursor-pointer transition-colors p-2"><i data-lucide="users" class="w-6 h-6"></i></div>
-            <div class="text-zinc-500 hover:text-white cursor-pointer transition-colors p-2"><i data-lucide="settings" class="w-6 h-6"></i></div>
-        </nav>
-    </div>
-
-    <script>lucide.createIcons();</script>
-</body>
+        <script>
+            lucide.createIcons();
+        </script>
+    </body>
 </html>
