@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayFarer Map Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-deep: #0D1B2A;
+            --bg-card: #1E2D3E;
+            --accent-teal: #00B4D8;
+            --danger-red: #EF4444;
+            --caution-yellow: #F59E0B;
+            --safe-green: #10B981;
+            --text-white: #FFFFFF;
+            --text-muted: #94A3B8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Viewport Container */
+        .mobile-screen {
+            width: 375px;
+            height: 812px;
+            background-color: var(--bg-deep);
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #1a1a1a;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Top Bar --- */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            padding: 50px 20px 10px;
+            background: linear-gradient(to bottom, var(--bg-deep) 60%, transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .logo {
+            color: var(--accent-teal);
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .top-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-teal);
+            border: 2px solid var(--bg-card);
+        }
+
+        /* --- Search Bar --- */
+        .search-container {
+            position: absolute;
+            top: 110px;
+            left: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 180, 216, 0.3);
+            border-radius: 12px;
+            padding: 12px 15px;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        /* --- Map Area (Mockup) --- */
+        .map-area {
+            position: absolute;
+            inset: 0;
+            background-color: #0b141d;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Map Road Mockup */
+        .road {
+            position: absolute;
+            background: #162431;
+        }
+
+        /* --- Legend --- */
+        .legend {
+            position: absolute;
+            left: 20px;
+            top: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .legend-pill {
+            background: rgba(13, 27, 42, 0.8);
+            backdrop-filter: blur(4px);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* --- Markers & Pulsing --- */
+        .marker {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            z-index: 5;
+        }
+
+        .marker::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .m-danger { background: var(--danger-red); box-shadow: 0 0 15px var(--danger-red); top: 350px; left: 180px; }
+        .m-danger::after { background: var(--danger-red); }
+
+        .m-caution { background: var(--caution-yellow); box-shadow: 0 0 15px var(--caution-yellow); top: 280px; left: 80px; }
+        .m-caution::after { background: var(--caution-yellow); }
+
+        .m-safe { background: var(--safe-green); box-shadow: 0 0 15px var(--safe-green); top: 500px; left: 250px; }
+        .m-safe::after { background: var(--safe-green); }
+
+        /* --- SOS Button --- */
+        .sos-btn {
+            position: absolute;
+            bottom: 210px;
+            right: 20px;
+            width: 72px;
+            height: 72px;
+            background: var(--danger-red);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            z-index: 30;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .sos-btn:active { transform: scale(0.9); }
+
+        .sos-label {
+            font-weight: 900;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        /* --- Bottom Card --- */
+        .bottom-card {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px 40px;
+            z-index: 25;
+            border-top: 2px solid var(--accent-teal);
+        }
+
+        .card-handle {
+            width: 40px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin: -10px auto 20px;
+        }
+
+        .zone-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .zone-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .details-btn {
+            width: 100%;
+            background: var(--accent-teal);
+            color: var(--bg-deep);
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-screen">
+        <!-- Top Navigation -->
+        <header class="top-bar">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="index.html" style="color: var(--text-white); text-decoration: none; display: flex; align-items: center;"><i data-lucide="arrow-left" size="24"></i></a>
+                <div class="logo">WayFarer</div>
+            </div>
+            <div class="top-icons">
+                <i data-lucide="bell" size="20" color="white"></i>
+                <div class="avatar"></div>
+            </div>
+        </header>
+
+        <!-- Search Bar Overlay -->
+        <div class="search-container">
+            <div class="search-bar">
+                <i data-lucide="search" size="18" color="#00B4D8"></i>
+                <input type="text" placeholder="Search destination...">
+            </div>
+        </div>
+
+        <!-- Legend Overlay -->
+        <div class="legend">
+            <div class="legend-pill"><div class="dot" style="background:var(--danger-red)"></div> Danger</div>
+            <div class="legend-pill"><div class="dot" style="background:var(--caution-yellow)"></div> Caution</div>
+            <div class="legend-pill"><div class="dot" style="background:var(--safe-green)"></div> Safe</div>
+        </div>
+
+        <!-- Map Area -->
+        <div class="map-area">
+            <!-- Road placeholders -->
+            <div class="road" style="width: 100%; height: 40px; top: 338px;"></div>
+            <div class="road" style="width: 40px; height: 100%; left: 168px;"></div>
+            
+            <!-- Map Markers -->
+            <div class="marker m-danger"></div>
+            <div class="marker m-caution"></div>
+            <div class="marker m-safe"></div>
+        </div>
+
+        <!-- SOS Button -->
+        <div class="sos-btn">
+            <span class="sos-label">SOS</span>
+        </div>
+
+        <!-- Bottom Sheet Card -->
+        <div class="bottom-card">
+            <div class="card-handle"></div>
+            <div class="zone-info">
+                <h3>Industrial District</h3>
+                <div class="zone-stats">
+                    <div class="stat-item">
+                        <i data-lucide="navigation" size="14"></i>
+                        <span>240m away</span>
+                    </div>
+                    <div class="stat-item">
+                        <i data-lucide="alert-triangle" size="14" color="#EF4444"></i>
+                        <span style="color: #EF4444;">12 Recent Reports</span>
+                    </div>
+                </div>
+                <button class="details-btn">View Zone Details</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
