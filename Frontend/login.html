@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayFarer | Sign In</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-base: #050a14;
+            --bg-surface: rgba(15, 30, 50, 0.4);
+            --bg-surface-hover: rgba(15, 30, 50, 0.8);
+            --accent-main: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.5);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 2.5rem;
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            animation: form-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes form-enter {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+        }
+
+        .logo span { color: var(--accent-main); }
+
+        .tabs {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-main);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+            background: rgba(0,0,0,0.4);
+        }
+
+        .input-group label {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+            transition: all 0.2s;
+            background: transparent;
+        }
+
+        /* Floating label effect */
+        .input-group input:focus ~ label,
+        .input-group input:not(:placeholder-shown) ~ label {
+            top: -10px;
+            left: 1rem;
+            transform: translateY(0);
+            font-size: 0.8rem;
+            color: var(--accent-main);
+            background: var(--bg-base);
+            padding: 0 0.5rem;
+            border-radius: 4px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--accent-main);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+            background: #fff;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: white; }
+
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const App = () => {
+            const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                // Simulate authentication delay
+                const btn = e.target.querySelector('button');
+                const origText = btn.innerText;
+                btn.innerText = 'Authenticating...';
+                setTimeout(() => {
+                    // Redirect to the dashboard
+                    window.location.href = 'index.html';
+                }, 800);
+            };
+
+            return (
+                <div className="auth-container">
+                    <div className="logo">Way<span>Farer</span></div>
+                    
+                    <div className="tabs">
+                        <div 
+                            className={`tab ${mode === 'signin' ? 'active' : ''}`}
+                            onClick={() => setMode('signin')}
+                        >
+                            Sign In
+                        </div>
+                        <div 
+                            className={`tab ${mode === 'signup' ? 'active' : ''}`}
+                            onClick={() => setMode('signup')}
+                        >
+                            Create Account
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit}>
+                        {mode === 'signup' && (
+                            <div className="input-group">
+                                <input type="text" id="name" placeholder=" " required />
+                                <label htmlFor="name">Full Name</label>
+                            </div>
+                        )}
+                        
+                        <div className="input-group">
+                            <input type="email" id="email" placeholder=" " required />
+                            <label htmlFor="email">Email Address</label>
+                        </div>
+                        
+                        <div className="input-group">
+                            <input type="password" id="password" placeholder=" " required />
+                            <label htmlFor="password">Password</label>
+                        </div>
+
+                        <button type="submit" className="submit-btn">
+                            {mode === 'signin' ? 'Enter Dashboard' : 'Join the Community'}
+                        </button>
+                    </form>
+
+                    <a href="welcome.html" className="back-link">
+                        ← Back to Welcome
+                    </a>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
