@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayFarer | Interactive Experience</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-base: #050a14;
+            --bg-surface: rgba(15, 30, 50, 0.4);
+            --bg-surface-hover: rgba(15, 30, 50, 0.8);
+            --accent-main: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.5);
+            --danger-main: #ff3b3b;
+            --danger-glow: rgba(255, 59, 59, 0.5);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(255, 59, 59, 0.05) 0%, transparent 50%);
+        }
+
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5, 10, 20, 0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span { color: var(--accent-main); }
+
+        /* General Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: var(--bg-surface-hover);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        /* Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media(min-width: 768px){
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media(min-width: 1024px){
+            .dashboard-grid {
+                grid-template-columns: 1fr 350px;
+            }
+        }
+
+        /* Interactive Map Container */
+        .map-container {
+            position: relative;
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0a1120;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.5;
+        }
+
+        .map-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px currentColor;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .map-marker:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+        }
+
+        .marker-pulse {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            background: inherit;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-ring 2s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+
+        /* SOS Button */
+        .sos-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        .sos-btn {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at top left, #ff5b5b, var(--danger-main));
+            border: none;
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 30px var(--danger-glow), inset 0 0 20px rgba(255,255,255,0.3);
+            transition: transform 0.1s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+        }
+
+        .sos-btn:active {
+            transform: scale(0.95);
+        }
+
+        .sos-btn::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            border: 2px solid var(--danger-main);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .sos-btn.holding::before {
+            opacity: 1;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toasts */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 2000;
+        }
+
+        .toast {
+            background: var(--bg-surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-left: 4px solid var(--accent-main);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slide-in 0.3s ease forwards;
+            min-width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .toast.danger {
+            border-left-color: var(--danger-main);
+        }
+
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Feeds */
+        .feed-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+        .feed-item:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge.warning { background: rgba(255, 165, 0, 0.2); color: orange; border: 1px solid orange; }
+        .badge.safe { background: rgba(0, 212, 255, 0.2); color: var(--accent-main); border: 1px solid var(--accent-main); }
+        .badge.danger { background: rgba(255, 59, 59, 0.2); color: var(--danger-main); border: 1px solid var(--danger-main); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Icons (using simple SVGs) ---
+        const IconAlert = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>;
+        const IconMapPin = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
+
+        // --- Simulated Map Data ---
+        const initialMarkers = [
+            { id: 1, x: 30, y: 40, type: 'safe', label: 'Clear Route' },
+            { id: 2, x: 70, y: 30, type: 'warning', label: 'Poor Lighting' },
+            { id: 3, x: 50, y: 70, type: 'danger', label: 'Recent Incident' },
+            { id: 4, x: 80, y: 80, type: 'safe', label: 'Patrol Area' },
+        ];
+
+        // --- Main App Component ---
+        const App = () => {
+            const [toasts, setToasts] = useState([]);
+            const [isHolding, setIsHolding] = useState(false);
+            const holdTimeoutRef = useRef(null);
+
+            // Toast system
+            const addToast = (msg, type = 'info') => {
+                const id = Date.now();
+                setToasts(prev => [...prev, { id, msg, type }]);
+                setTimeout(() => {
+                    setToasts(prev => prev.filter(t => t.id !== id));
+                }, 4000);
+            };
+
+            // SOS Logic
+            const handleSosStart = () => {
+                setIsHolding(true);
+                addToast("Holding SOS... Keep holding to broadcast alarm.", "info");
+                holdTimeoutRef.current = setTimeout(() => {
+                    addToast("🚨 SOS BROADCASTED TO EMERGENCY CONTACTS!", "danger");
+                    setIsHolding(false);
+                }, 2000);
+            };
+
+            const handleSosEnd = () => {
+                if (isHolding) {
+                    clearTimeout(holdTimeoutRef.current);
+                    setIsHolding(false);
+                    addToast("SOS cancelled.", "info");
+                }
+            };
+
+            return (
+                <div>
+                    {/* Navigation */}
+                    <nav>
+                        <div className="logo">
+                            Way<span>Farer</span>
+                        </div>
+                        <div style={{display: 'flex', gap: '1rem'}}>
+                            <button style={{background:'transparent', border: '1px solid var(--accent-main)', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', cursor:'pointer'}} onClick={() => addToast("Logged in perfectly!")}>
+                                Profile
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* Main Content */}
+                    <div className="container">
+                        <header style={{marginBottom: '2rem'}}>
+                            <h1 style={{fontSize: '3rem', marginBottom: '0.5rem', fontWeight: 800}}>Live Protection <span style={{color: 'var(--accent-main)'}}>Active</span></h1>
+                            <p style={{color: 'var(--text-secondary)', fontSize: '1.2rem'}}>Your surroundings are being monitored. Stay aware.</p>
+                        </header>
+
+                        <div className="dashboard-grid">
+                            
+                            {/* Left Col: Map */}
+                            <div className="glass-panel" style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <h3 style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}><IconMapPin/> Neighborhood Radar</h3>
+                                    <span style={{fontSize:'0.8rem', color: 'var(--accent-main)'}}>● Live Updates</span>
+                                </div>
+                                <div className="map-container">
+                                    <div className="map-grid-bg"></div>
+                                    
+                                    {/* Map Markers */}
+                                    {initialMarkers.map(marker => {
+                                        const color = marker.type === 'danger' ? 'var(--danger-main)' : marker.type === 'warning' ? 'orange' : 'var(--accent-main)';
+                                        return (
+                                            <div 
+                                                key={marker.id} 
+                                                className="map-marker" 
+                                                style={{left: `${marker.x}%`, top: `${marker.y}%`, color: color, background: color}}
+                                                onClick={() => addToast(`Location Update: ${marker.label}`, marker.type)}
+                                            >
+                                                <div className="marker-pulse"></div>
+                                            </div>
+                                        )
+                                    })}
+                                    <div style={{position: 'absolute', bottom: '1rem', right: '1rem', background: 'rgba(0,0,0,0.5)', padding:'0.5rem', borderRadius: '4px', fontSize:'0.8rem', backdropFilter:'blur(4px)'}}>
+                                        Tap markers for details
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Col: Controls & Activity */}
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '2rem'}}>
+                                
+                                {/* SOS Panel */}
+                                <div className="glass-panel" style={{flex: 1}}>
+                                    <div className="sos-container">
+                                        <h3 style={{marginBottom: '0.5rem', color: isHolding ? 'var(--danger-main)' : 'white', transition:'color 0.3s'}}>Emergency Relay</h3>
+                                        <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem'}}>Hold for 2 seconds to alert authorities</p>
+                                        
+                                        <button 
+                                            className={`sos-btn ${isHolding ? 'holding' : ''}`}
+                                            onMouseDown={handleSosStart}
+                                            onMouseUp={handleSosEnd}
+                                            onMouseLeave={handleSosEnd}
+                                            onTouchStart={handleSosStart}
+                                            onTouchEnd={handleSosEnd}
+                                        >
+                                            SOS
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Live Activity */}
+                                <div className="glass-panel" style={{flex: 1, padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
+                                    <div style={{padding: '1.5rem', borderBottom: '1px solid var(--glass-border)'}}>
+                                        <h3>Live Community Feed</h3>
+                                    </div>
+                                    <div style={{overflowY: 'auto', maxHeight: '200px'}}>
+                                        <div className="feed-item">
+                                            <div style={{marginTop:'3px'}}><IconAlert/></div>
+                                            <div>
+                                                <div style={{display: 'flex', alignItems: 'center', gap:'0.5rem', marginBottom:'0.2rem'}}>
+                                                    <span style={{fontWeight: 600}}>Suspicious Activity</span>
+                                                    <span className="badge warning">Warning</span>
+                                                </div>
+                                                <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)'}}>Reported 2 mins ago near 5th Ave.</div>
+                                            </div>
+                                        </div>
+                                        <div className="feed-item">
+                                            <div style={{marginTop:'3px', color: 'var(--accent-main)'}}><IconMapPin/></div>
+                                            <div>
+                                                <div style={{display: 'flex', alignItems: 'center', gap:'0.5rem', marginBottom:'0.2rem'}}>
+                                                    <span style={{fontWeight: 600}}>Area Secured</span>
+                                                    <span className="badge safe">Safe</span>
+                                                </div>
+                                                <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)'}}>Patrol confirmed safe passage on Broadway.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Toasts */}
+                    <div className="toast-container">
+                        {toasts.map(toast => (
+                            <div key={toast.id} className={`toast ${toast.type}`}>
+                                {toast.type === 'danger' ? <IconAlert/> : <IconMapPin/>}
+                                {toast.msg}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
