@@ -4,340 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WayFarer Map Interface</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: '#0B1121', // Deep blue
+                        surface: '#1E293B', // Slate 800
+                        accent: '#0ea5e9', // Sky 500
+                        danger: '#ef4444',
+                        caution: '#f59e0b',
+                        safe: '#10b981',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --bg-deep: #0D1B2A;
-            --bg-card: #1E2D3E;
-            --accent-teal: #00B4D8;
-            --danger-red: #EF4444;
-            --caution-yellow: #F59E0B;
-            --safe-green: #10B981;
-            --text-white: #FFFFFF;
-            --text-muted: #94A3B8;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* Mobile Viewport Container */
-        .mobile-screen {
-            width: 375px;
-            height: 812px;
-            background-color: var(--bg-deep);
-            position: relative;
-            overflow: hidden;
-            border: 8px solid #1a1a1a;
-            border-radius: 40px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        /* --- Top Bar --- */
-        .top-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 100px;
-            padding: 50px 20px 10px;
-            background: linear-gradient(to bottom, var(--bg-deep) 60%, transparent);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 20;
-        }
-
-        .logo {
-            color: var(--accent-teal);
-            font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: -0.5px;
-        }
-
-        .top-icons {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--accent-teal);
-            border: 2px solid var(--bg-card);
-        }
-
-        /* --- Search Bar --- */
-        .search-container {
-            position: absolute;
-            top: 110px;
-            left: 20px;
-            right: 20px;
-            z-index: 20;
-        }
-
-        .search-bar {
-            width: 100%;
-            background: var(--bg-card);
-            border: 1px solid rgba(0, 180, 216, 0.3);
-            border-radius: 12px;
-            padding: 12px 15px;
-            color: var(--text-white);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .search-bar input {
-            background: transparent;
-            border: none;
-            color: white;
-            outline: none;
-            font-size: 0.9rem;
-            width: 100%;
-        }
-
-        /* --- Map Area (Mockup) --- */
-        .map-area {
-            position: absolute;
-            inset: 0;
-            background-color: #0b141d;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-
-        /* Map Road Mockup */
-        .road {
-            position: absolute;
-            background: #162431;
-        }
-
-        /* --- Legend --- */
-        .legend {
-            position: absolute;
-            left: 20px;
-            top: 180px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .legend-pill {
-            background: rgba(13, 27, 42, 0.8);
-            backdrop-filter: blur(4px);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
-
-        /* --- Markers & Pulsing --- */
-        .marker {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            z-index: 5;
-        }
-
-        .marker::after {
-            content: '';
-            position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(3); opacity: 0; }
-        }
-
-        .m-danger { background: var(--danger-red); box-shadow: 0 0 15px var(--danger-red); top: 350px; left: 180px; }
-        .m-danger::after { background: var(--danger-red); }
-
-        .m-caution { background: var(--caution-yellow); box-shadow: 0 0 15px var(--caution-yellow); top: 280px; left: 80px; }
-        .m-caution::after { background: var(--caution-yellow); }
-
-        .m-safe { background: var(--safe-green); box-shadow: 0 0 15px var(--safe-green); top: 500px; left: 250px; }
-        .m-safe::after { background: var(--safe-green); }
-
-        /* --- SOS Button --- */
-        .sos-btn {
-            position: absolute;
-            bottom: 210px;
-            right: 20px;
-            width: 72px;
-            height: 72px;
-            background: var(--danger-red);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            z-index: 30;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .sos-btn:active { transform: scale(0.9); }
-
-        .sos-label {
-            font-weight: 900;
-            font-size: 1.1rem;
-            line-height: 1;
-        }
-
-        /* --- Bottom Card --- */
-        .bottom-card {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            border-radius: 24px 24px 0 0;
-            padding: 24px 20px 40px;
-            z-index: 25;
-            border-top: 2px solid var(--accent-teal);
-        }
-
-        .card-handle {
-            width: 40px;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            margin: -10px auto 20px;
-        }
-
-        .zone-info h3 {
-            font-size: 1.1rem;
-            margin-bottom: 4px;
-        }
-
-        .zone-stats {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .details-btn {
-            width: 100%;
-            background: var(--accent-teal);
-            color: var(--bg-deep);
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-        }
+        body { background-color: #000; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .map-bg { background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 40px 40px; }
+        .marker::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
     </style>
 </head>
 <body>
-
-    <div class="mobile-screen">
+    <div class="w-[375px] h-[812px] bg-base relative overflow-hidden border-8 border-slate-900 rounded-[40px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)]">
+        
         <!-- Top Navigation -->
-        <header class="top-bar">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <a href="index.html" style="color: var(--text-white); text-decoration: none; display: flex; align-items: center;"><i data-lucide="arrow-left" size="24"></i></a>
-                <div class="logo">WayFarer</div>
+        <header class="absolute top-0 left-0 right-0 h-[100px] pt-[50px] px-5 bg-gradient-to-b from-base to-transparent flex justify-between items-center z-20">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-white hover:text-sky-400 transition-colors flex items-center p-2"><i data-lucide="arrow-left" class="w-6 h-6 drop-shadow-md"></i></a>
+                <div class="text-white font-extrabold text-xl tracking-tight drop-shadow-md">Way<span class="text-sky-400">Farer</span></div>
             </div>
-            <div class="top-icons">
-                <i data-lucide="bell" size="20" color="white"></i>
-                <div class="avatar"></div>
+            <div class="flex items-center gap-4">
+                <i data-lucide="bell" class="w-6 h-6 text-white cursor-pointer hover:text-sky-400 transition-colors drop-shadow-md"></i>
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 border-2 border-white/20 shadow-md cursor-pointer"></div>
             </div>
         </header>
 
         <!-- Search Bar Overlay -->
-        <div class="search-container">
-            <div class="search-bar">
-                <i data-lucide="search" size="18" color="#00B4D8"></i>
-                <input type="text" placeholder="Search destination...">
+        <div class="absolute top-[110px] left-5 right-5 z-20">
+            <div class="w-full bg-slate-800/90 backdrop-blur-md border border-sky-500/30 rounded-2xl p-3.5 flex items-center gap-3 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                <i data-lucide="search" class="w-5 h-5 text-sky-400"></i>
+                <input type="text" placeholder="Search destination..." class="bg-transparent border-none text-white outline-none text-[15px] w-full placeholder-slate-400 font-semibold tracking-wide">
             </div>
         </div>
 
         <!-- Legend Overlay -->
-        <div class="legend">
-            <div class="legend-pill"><div class="dot" style="background:var(--danger-red)"></div> Danger</div>
-            <div class="legend-pill"><div class="dot" style="background:var(--caution-yellow)"></div> Caution</div>
-            <div class="legend-pill"><div class="dot" style="background:var(--safe-green)"></div> Safe</div>
+        <div class="absolute left-5 top-[185px] flex flex-col gap-2.5 z-10">
+            <div class="bg-slate-900/80 backdrop-blur-md py-2 px-3.5 rounded-full text-[11px] font-black uppercase tracking-wider flex items-center gap-2.5 border border-white/10 text-white shadow-lg">
+                <div class="w-2.5 h-2.5 rounded-full bg-danger shadow-[0_0_10px_#ef4444]"></div> Danger
+            </div>
+            <div class="bg-slate-900/80 backdrop-blur-md py-2 px-3.5 rounded-full text-[11px] font-black uppercase tracking-wider flex items-center gap-2.5 border border-white/10 text-white shadow-lg">
+                <div class="w-2.5 h-2.5 rounded-full bg-caution shadow-[0_0_10px_#f59e0b]"></div> Caution
+            </div>
+            <div class="bg-slate-900/80 backdrop-blur-md py-2 px-3.5 rounded-full text-[11px] font-black uppercase tracking-wider flex items-center gap-2.5 border border-white/10 text-white shadow-lg">
+                <div class="w-2.5 h-2.5 rounded-full bg-safe shadow-[0_0_10px_#10b981]"></div> Safe
+            </div>
         </div>
 
         <!-- Map Area -->
-        <div class="map-area">
+        <div class="absolute inset-0 bg-[#0c162d] map-bg">
             <!-- Road placeholders -->
-            <div class="road" style="width: 100%; height: 40px; top: 338px;"></div>
-            <div class="road" style="width: 40px; height: 100%; left: 168px;"></div>
+            <div class="absolute bg-slate-800/80 w-full h-[45px] top-[338px] border-y border-white/5"></div>
+            <div class="absolute bg-slate-800/80 w-[45px] h-full left-[168px] border-x border-white/5"></div>
             
             <!-- Map Markers -->
-            <div class="marker m-danger"></div>
-            <div class="marker m-caution"></div>
-            <div class="marker m-safe"></div>
+            <div class="marker absolute w-5 h-5 rounded-full bg-danger shadow-[0_0_20px_#ef4444] top-[350px] left-[180px] z-10 before:content-[''] before:absolute before:inset-[-8px] before:rounded-full before:bg-danger before:animate-[pulse_2s_infinite]"></div>
+            <div class="marker absolute w-5 h-5 rounded-full bg-caution shadow-[0_0_20px_#f59e0b] top-[280px] left-[80px] z-10 before:content-[''] before:absolute before:inset-[-8px] before:rounded-full before:bg-caution before:animate-[pulse_2s_infinite]"></div>
+            <div class="marker absolute w-5 h-5 rounded-full bg-safe shadow-[0_0_20px_#10b981] top-[480px] left-[250px] z-10 before:content-[''] before:absolute before:inset-[-8px] before:rounded-full before:bg-safe before:animate-[pulse_2s_infinite]"></div>
         </div>
 
         <!-- SOS Button -->
-        <div class="sos-btn">
-            <span class="sos-label">SOS</span>
+        <div class="absolute bottom-[230px] right-5 w-[80px] h-[80px] bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex flex-col justify-center items-center shadow-[0_0_40px_rgba(239,68,68,0.7)] border-[4px] border-white/30 z-30 cursor-pointer active:scale-95 transition-transform">
+            <span class="font-black text-white text-2xl leading-none tracking-tighter drop-shadow-md">SOS</span>
         </div>
 
         <!-- Bottom Sheet Card -->
-        <div class="bottom-card">
-            <div class="card-handle"></div>
-            <div class="zone-info">
-                <h3>Industrial District</h3>
-                <div class="zone-stats">
-                    <div class="stat-item">
-                        <i data-lucide="navigation" size="14"></i>
-                        <span>240m away</span>
-                    </div>
-                    <div class="stat-item">
-                        <i data-lucide="alert-triangle" size="14" color="#EF4444"></i>
-                        <span style="color: #EF4444;">12 Recent Reports</span>
-                    </div>
+        <div class="absolute bottom-0 left-0 right-0 bg-slate-800/95 backdrop-blur-3xl rounded-t-[32px] pt-7 px-6 pb-10 z-[25] border-t-[3px] border-sky-500 shadow-[0_-15px_50px_rgba(0,0,0,0.6)]">
+            <div class="w-14 h-1.5 bg-white/20 rounded-full mx-auto -mt-4 mb-7"></div>
+            <div>
+                <h3 class="text-white text-2xl font-black mb-1.5 tracking-tight">Industrial District</h3>
+                <div class="flex gap-5 mb-7 text-slate-300 text-[15px] font-bold">
+                    <div class="flex items-center gap-2"><i data-lucide="navigation" class="w-5 h-5 text-sky-400"></i> 240m away</div>
+                    <div class="flex items-center gap-2 text-danger bg-danger/10 px-3 py-1 rounded-lg border border-danger/30"><i data-lucide="alert-triangle" class="w-4 h-4"></i> 12 Reports</div>
                 </div>
-                <button class="details-btn">View Zone Details</button>
+                <button class="w-full bg-gradient-to-r from-sky-400 to-blue-600 hover:from-sky-300 hover:to-blue-500 text-white px-4 py-4.5 rounded-2xl font-black uppercase tracking-widest text-[15px] transition-colors shadow-[0_0_25px_rgba(14,165,233,0.5)] border border-sky-300/30 h-[56px] flex items-center justify-center">
+                    View Zone Details
+                </button>
             </div>
         </div>
     </div>
 
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

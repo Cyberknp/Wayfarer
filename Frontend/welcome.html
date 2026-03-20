@@ -5,185 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WayFarer | Safety in Every Step</title>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <!-- React & ReactDOM -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel standalone -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <style>
-        :root {
-            --bg-base: #050a14;
-            --accent-main: #00d4ff;
-            --accent-glow: rgba(0, 212, 255, 0.5);
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    animation: { 'fade-up': 'fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards' },
+                    keyframes: { fadeUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                }
+            }
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        /* Abstract glowing background */
-        .bg-glow-1 {
-            position: absolute; width: 60vw; height: 60vw;
-            background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 60%);
-            top: -20%; left: -20%; border-radius: 50%; z-index: 1; pointer-events: none;
-        }
-        .bg-glow-2 {
-            position: absolute; width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(255, 59, 59, 0.1) 0%, transparent 60%);
-            bottom: -20%; right: -10%; border-radius: 50%; z-index: 1; pointer-events: none;
-        }
-
-        .content {
-            z-index: 10;
-            text-align: center;
-            max-width: 800px;
-            padding: 2rem;
-            animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 {
-            font-size: 5rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            letter-spacing: -2px;
-        }
-
-        h1 span {
-            color: var(--accent-main);
-            text-shadow: 0 0 40px var(--accent-glow);
-        }
-
-        p {
-            font-size: 1.4rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            max-width: 600px;
-            margin-inline: auto;
-            line-height: 1.6;
-        }
-
-        .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-            background: var(--accent-main);
-            color: #000;
-            padding: 1.2rem 3rem;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: 800;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 30px var(--accent-glow);
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 40px var(--accent-glow);
-            background: #fff;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 30px;
-            color: var(--accent-main);
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* Floating particles */
-        .particle {
-            position: absolute;
-            background: var(--accent-main);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-    </style>
+    </script>
 </head>
-<body>
-    <div class="bg-glow-1"></div>
-    <div class="bg-glow-2"></div>
-    
-    <div id="root"></div>
+<body class="h-screen flex items-center justify-center relative bg-[#0B1121] text-white overflow-hidden">
+    <!-- Vibrant Glowing Orbs -->
+    <div class="absolute w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(14,165,233,0.25)_0%,transparent_60%)] -top-[20%] -left-[20%] rounded-full pointer-events-none"></div>
+    <div class="absolute w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(239,68,68,0.2)_0%,transparent_60%)] -bottom-[20%] -right-[10%] rounded-full pointer-events-none"></div>
+    <div class="absolute w-[40vw] h-[40vw] bg-[radial-gradient(circle,rgba(139,92,246,0.15)_0%,transparent_60%)] top-[10%] right-[10%] rounded-full pointer-events-none"></div>
+
+    <div id="root" class="z-10 text-center max-w-3xl p-8 opacity-0 animate-fade-up"></div>
 
     <script type="text/babel">
         const { useEffect } = React;
-
         const App = () => {
-            // Add some slow floating particles for the aesthetic
             useEffect(() => {
                 const container = document.body;
-                for (let i = 0; i < 20; i++) {
+                for (let i = 0; i < 25; i++) {
                     const el = document.createElement('div');
-                    el.className = 'particle';
-                    const size = Math.random() * 4 + 1;
-                    el.style.width = size + 'px';
-                    el.style.height = size + 'px';
-                    el.style.left = Math.random() * 100 + 'vw';
-                    el.style.top = Math.random() * 100 + 'vh';
-                    el.style.opacity = Math.random() * 0.5 + 0.1;
-                    el.style.boxShadow = '0 0 10px var(--accent-main)';
-                    
-                    // Simple animate
-                    const duration = Math.random() * 20 + 10;
+                    el.className = 'absolute rounded-full pointer-events-none shadow-[0_0_15px_#38bdf8]';
+                    el.style.backgroundColor = '#38bdf8';
+                    const size = Math.random() * 5 + 2;
+                    el.style.width = size + 'px'; el.style.height = size + 'px';
+                    el.style.left = Math.random() * 100 + 'vw'; el.style.top = Math.random() * 100 + 'vh';
+                    el.style.opacity = Math.random() * 0.6 + 0.2;
+                    const duration = Math.random() * 15 + 10;
                     el.animate([
                         { transform: `translateY(0px) translateX(0px)` },
                         { transform: `translateY(-${Math.random() * 200 + 100}px) translateX(${Math.random() * 100 - 50}px)` }
-                    ], {
-                        duration: duration * 1000,
-                        iterations: Infinity,
-                        direction: 'alternate',
-                        easing: 'ease-in-out'
-                    });
+                    ], { duration: duration * 1000, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
                     container.appendChild(el);
                 }
             }, []);
 
             return (
-                <div className="content">
-                    <div className="badge">Next-Gen Personal Security</div>
-                    <h1>Safe wherever <br/> you <span>roam.</span></h1>
-                    <p>WayFarer connects you to a live community shield, offering instant SOS alerts, dynamic danger mapping, and ultimate peace of mind.</p>
-                    <a href="login.html" className="cta-btn">
+                <div className="relative">
+                    <div className="inline-block px-5 py-2 mb-8 rounded-full bg-gradient-to-r from-sky-500/20 to-blue-600/20 border border-sky-400/30 text-sky-300 text-sm font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(14,165,233,0.2)]">
+                        Next-Gen Personal Security
+                    </div>
+                    <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6 text-white drop-shadow-xl">
+                        Safe wherever <br/> you <span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-blue-500 drop-shadow-[0_0_35px_rgba(56,189,248,0.8)]">roam.</span>
+                    </h1>
+                    <p className="text-xl text-blue-100/70 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
+                        WayFarer connects you to a live community shield, offering instant SOS alerts, dynamic danger mapping, and ultimate peace of mind.
+                    </p>
+                    <a href="login.html" className="inline-flex items-center gap-3 bg-gradient-to-r from-sky-400 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-bold hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(56,189,248,0.5)] border border-sky-300/50 hover:shadow-[0_0_50px_rgba(56,189,248,0.8)]">
                         Get Started
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                     </a>
                 </div>
             );
         };
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>

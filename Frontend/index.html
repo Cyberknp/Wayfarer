@@ -5,276 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WayFarer | Interactive Experience</title>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <!-- React & ReactDOM -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&display=swap" rel="stylesheet">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel standalone -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: '#0B1121', // deep blue
+                        surface: 'rgba(30, 41, 59, 0.6)', // slate-800 mixed
+                        border: 'rgba(56, 189, 248, 0.2)', // sky-400 mixed
+                        accent: '#0ea5e9', // sky-500
+                    },
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --bg-base: #050a14;
-            --bg-surface: rgba(15, 30, 50, 0.4);
-            --bg-surface-hover: rgba(15, 30, 50, 0.8);
-            --accent-main: #00d4ff;
-            --accent-glow: rgba(0, 212, 255, 0.5);
-            --danger-main: #ff3b3b;
-            --danger-glow: rgba(255, 59, 59, 0.5);
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 85% 30%, rgba(255, 59, 59, 0.05) 0%, transparent 50%);
-        }
-
-        /* Nav */
-        nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(5, 10, 20, 0.6);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--glass-border);
-            z-index: 1000;
-        }
-
-        .logo {
-            font-weight: 800;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .logo span { color: var(--accent-main); }
-
-        /* General Layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 8rem 2rem 4rem;
-        }
-
-        /* Glass Panel */
-        .glass-panel {
-            background: var(--bg-surface);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .glass-panel:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            background: var(--bg-surface-hover);
-            border-color: rgba(255,255,255,0.2);
-        }
-
-        /* Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        @media(min-width: 768px){
-            .dashboard-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media(min-width: 1024px){
-            .dashboard-grid {
-                grid-template-columns: 1fr 350px;
-            }
-        }
-
-        /* Interactive Map Container */
-        .map-container {
-            position: relative;
-            height: 400px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #0a1120;
-            border: 1px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .map-grid-bg {
-            position: absolute;
-            inset: 0;
-            background-image: 
-                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.5;
-        }
-
-        .map-marker {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px currentColor;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .map-marker:hover {
-            transform: translate(-50%, -50%) scale(1.5);
-        }
-
-        .marker-pulse {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 100%; height: 100%;
-            background: inherit;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            animation: pulse-ring 2s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
-        }
-
-        /* SOS Button */
-        .sos-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            text-align: center;
-        }
-
-        .sos-btn {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: radial-gradient(circle at top left, #ff5b5b, var(--danger-main));
-            border: none;
-            color: white;
-            font-size: 2rem;
-            font-weight: 800;
-            cursor: pointer;
-            position: relative;
-            box-shadow: 0 0 30px var(--danger-glow), inset 0 0 20px rgba(255,255,255,0.3);
-            transition: transform 0.1s, box-shadow 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            outline: none;
-        }
-
-        .sos-btn:active {
-            transform: scale(0.95);
-        }
-
-        .sos-btn::before {
-            content: '';
-            position: absolute;
-            inset: -10px;
-            border-radius: 50%;
-            border: 2px solid var(--danger-main);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .sos-btn.holding::before {
-            opacity: 1;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Toasts */
-        .toast-container {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            z-index: 2000;
-        }
-
-        .toast {
-            background: var(--bg-surface);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-left: 4px solid var(--accent-main);
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            animation: slide-in 0.3s ease forwards;
-            min-width: 300px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .toast.danger {
-            border-left-color: var(--danger-main);
-        }
-
-        @keyframes slide-in {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Feeds */
-        .feed-item {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            transition: background 0.2s;
-        }
-        .feed-item:hover {
-            background: rgba(255,255,255,0.02);
-        }
-        
-        .badge {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .badge.warning { background: rgba(255, 165, 0, 0.2); color: orange; border: 1px solid orange; }
-        .badge.safe { background: rgba(0, 212, 255, 0.2); color: var(--accent-main); border: 1px solid var(--accent-main); }
-        .badge.danger { background: rgba(255, 59, 59, 0.2); color: var(--danger-main); border: 1px solid var(--danger-main); }
+        body { background-color: theme('colors.base'); color: white; background-image: radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.1) 0%, transparent 50%), radial-gradient(circle at 85% 30%, rgba(239, 68, 68, 0.08) 0%, transparent 50%); }
+        .map-bg { background-image: linear-gradient(rgba(14, 165, 233, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(14, 165, 233, 0.08) 1px, transparent 1px); background-size: 40px 40px; }
+        .marker-pulse { animation: pulse-ring 2s infinite cubic-bezier(0.25, 0.8, 0.25, 1); }
+        @keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(3); opacity: 0; } }
+        /* Toast animation */
+        @keyframes slide-in { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .animate-slide-in { animation: slide-in 0.3s ease forwards; }
+        /* SOS Spin */
+        @keyframes spin-border { 100% { transform: rotate(360deg); } }
+        .sos-btn-holding::before { opacity: 1; animation: spin-border 1s linear infinite; }
     </style>
 </head>
 <body>
@@ -283,11 +44,10 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- Icons (using simple SVGs) ---
-        const IconAlert = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>;
-        const IconMapPin = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
+        const IconAlert = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+        const IconMapPin = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>;
+        const IconShield = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
 
-        // --- Simulated Map Data ---
         const initialMarkers = [
             { id: 1, x: 30, y: 40, type: 'safe', label: 'Clear Route' },
             { id: 2, x: 70, y: 30, type: 'warning', label: 'Poor Lighting' },
@@ -295,25 +55,20 @@
             { id: 4, x: 80, y: 80, type: 'safe', label: 'Patrol Area' },
         ];
 
-        // --- Main App Component ---
         const App = () => {
             const [toasts, setToasts] = useState([]);
             const [isHolding, setIsHolding] = useState(false);
             const holdTimeoutRef = useRef(null);
 
-            // Toast system
             const addToast = (msg, type = 'info') => {
                 const id = Date.now();
                 setToasts(prev => [...prev, { id, msg, type }]);
-                setTimeout(() => {
-                    setToasts(prev => prev.filter(t => t.id !== id));
-                }, 4000);
+                setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
             };
 
-            // SOS Logic
             const handleSosStart = () => {
                 setIsHolding(true);
-                addToast("Holding SOS... Keep holding to broadcast alarm.", "info");
+                addToast("Holding SOS... Keep holding to broadcast.", "info");
                 holdTimeoutRef.current = setTimeout(() => {
                     addToast("🚨 SOS BROADCASTED TO EMERGENCY CONTACTS!", "danger");
                     setIsHolding(false);
@@ -329,133 +84,153 @@
             };
 
             return (
-                <div>
+                <div className="pb-16 min-h-screen">
                     {/* Navigation */}
-                    <nav>
-                        <div className="logo">
-                            Way<span>Farer</span>
+                    <nav className="fixed top-0 left-0 right-0 px-6 py-4 flex flex-col md:flex-row justify-between items-center bg-[#0B1121]/80 backdrop-blur-2xl border-b border-sky-500/20 z-50 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                        <div className="text-2xl font-black tracking-tight flex items-center gap-2 mb-4 md:mb-0 text-white">
+                            Way<span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-blue-500">Farer</span>
                         </div>
-                        <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
-                            <button style={{background:'transparent', border: '1px solid var(--danger-main)', color: 'var(--danger-main)', padding: '0.5rem 1rem', borderRadius: '4px', cursor:'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}} onClick={() => window.location.href = 'reportincid.html'}>
+                        <div className="flex flex-wrap items-center justify-center gap-4">
+                            <button 
+                                className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500 hover:text-white transition-all text-sm font-black uppercase tracking-wider shadow-sm hover:shadow-[0_0_20px_rgba(239,68,68,0.5)]"
+                                onClick={() => window.location.href = 'reportincid.html'}
+                            >
                                 <IconAlert /> Report
                             </button>
-                            <button style={{background:'var(--accent-main)', border: 'none', color: '#000', padding: '0.5rem 1rem', borderRadius: '4px', cursor:'pointer', fontWeight: 'bold'}} onClick={() => window.location.href = 'dangermap.html'}>
+                            <button 
+                                className="px-5 py-2.5 bg-gradient-to-r from-sky-400 to-blue-600 border border-sky-400/50 text-white rounded-xl hover:scale-105 transition-all text-sm font-black uppercase tracking-wider shadow-[0_0_20px_rgba(14,165,233,0.4)]"
+                                onClick={() => window.location.href = 'dangermap.html'}
+                            >
                                 Danger Map
                             </button>
-                            <button style={{background:'transparent', border: '1px solid #F59E0B', color: '#F59E0B', padding: '0.5rem 1rem', borderRadius: '4px', cursor:'pointer', fontWeight: 'bold'}} onClick={() => window.location.href = 'securitydash.html'}>
+                            <button 
+                                className="px-5 py-2.5 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl hover:bg-amber-500 hover:text-white transition-all text-sm font-black uppercase tracking-wider shadow-sm hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]"
+                                onClick={() => window.location.href = 'securitydash.html'}
+                            >
                                 Security Center
                             </button>
-                            <button style={{background:'transparent', border: '1px solid var(--accent-main)', color: 'white', padding: '0.5rem 1rem', borderRadius: '4px', cursor:'pointer'}} onClick={() => window.location.href = 'profile.html'}>
-                                Profile
+                            <button 
+                                className="w-11 h-11 flex items-center justify-center bg-slate-800 text-sky-300 rounded-full hover:bg-sky-500 hover:text-white transition-all border border-sky-500/30 shadow-md"
+                                onClick={() => window.location.href = 'profile.html'}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </button>
                         </div>
                     </nav>
 
                     {/* Main Content */}
-                    <div className="container">
-                        <header style={{marginBottom: '2rem'}}>
-                            <h1 style={{fontSize: '3rem', marginBottom: '0.5rem', fontWeight: 800}}>Live Protection <span style={{color: 'var(--accent-main)'}}>Active</span></h1>
-                            <p style={{color: 'var(--text-secondary)', fontSize: '1.2rem'}}>Your surroundings are being monitored. Stay aware.</p>
+                    <main className="max-w-[1200px] mx-auto pt-40 px-6 relative z-10">
+                        <header className="mb-10 text-center md:text-left">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 text-sm font-black uppercase tracking-widest rounded-full border border-emerald-500/30 mb-6 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-[pulse_2s_infinite]"></div> Live Protection Active
+                            </div>
+                            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-4 text-white tracking-tighter leading-tight drop-shadow-lg">Your surroundings <br className="hidden md:block"/>are secured.</h1>
+                            <p className="text-xl text-sky-200 font-semibold mb-2">Community shield monitoring is engaged.</p>
                         </header>
 
-                        <div className="dashboard-grid">
+                        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-10 mt-12">
                             
                             {/* Left Col: Map */}
-                            <div className="glass-panel" style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <h3 style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}><IconMapPin/> Neighborhood Radar</h3>
-                                    <span style={{fontSize:'0.8rem', color: 'var(--accent-main)'}}>● Live Updates</span>
+                            <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col gap-6 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(circle,rgba(56,189,248,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+
+                                <div className="flex justify-between items-center relative z-10">
+                                    <h3 className="flex items-center gap-3 text-2xl font-black text-white drop-shadow-md"><IconMapPin/> Neighborhood Radar</h3>
+                                    <span className="text-xs font-black px-3 py-1.5 bg-sky-500/20 text-sky-300 rounded-lg border border-sky-400/30 tracking-widest uppercase">Live Sync</span>
                                 </div>
-                                <div className="map-container">
-                                    <div className="map-grid-bg"></div>
+                                
+                                <div className="relative h-[480px] rounded-2xl overflow-hidden bg-[#0c162d] border border-sky-500/20 flex flex-col shadow-inner z-10">
+                                    <div className="absolute inset-0 map-bg opacity-70"></div>
                                     
-                                    {/* Map Markers */}
-                                    {initialMarkers.map(marker => {
-                                        const color = marker.type === 'danger' ? 'var(--danger-main)' : marker.type === 'warning' ? 'orange' : 'var(--accent-main)';
+                                    {initialMarkers.map(m => {
+                                        const color = m.type === 'danger' ? '#ef4444' : m.type === 'warning' ? '#f59e0b' : '#38bdf8';
                                         return (
                                             <div 
-                                                key={marker.id} 
-                                                className="map-marker" 
-                                                style={{left: `${marker.x}%`, top: `${marker.y}%`, color: color, background: color}}
-                                                onClick={() => addToast(`Location Update: ${marker.label}`, marker.type)}
+                                                key={m.id} 
+                                                className="absolute w-4 h-4 rounded-full -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 transition-transform hover:scale-150"
+                                                style={{left: `${m.x}%`, top: `${m.y}%`, backgroundColor: color, boxShadow: `0 0 20px ${color}`}}
+                                                onClick={() => addToast(`Location Update: ${m.label}`, m.type)}
                                             >
-                                                <div className="marker-pulse"></div>
+                                                <div className="absolute top-1/2 left-1/2 w-full h-full rounded-full marker-pulse" style={{backgroundColor: color}}></div>
                                             </div>
                                         )
                                     })}
-                                    <div style={{position: 'absolute', bottom: '1rem', right: '1rem', background: 'rgba(0,0,0,0.5)', padding:'0.5rem', borderRadius: '4px', fontSize:'0.8rem', backdropFilter:'blur(4px)'}}>
-                                        Tap markers for details
+
+                                    <div className="absolute bottom-5 right-5 bg-slate-900/90 backdrop-blur-md px-5 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider text-sky-400 border border-sky-500/30 shadow-lg">
+                                        Interactive Radar
                                     </div>
                                 </div>
                             </div>
 
                             {/* Right Col: Controls & Activity */}
-                            <div style={{display: 'flex', flexDirection: 'column', gap: '2rem'}}>
+                            <div className="flex flex-col gap-10">
                                 
                                 {/* SOS Panel */}
-                                <div className="glass-panel" style={{flex: 1}}>
-                                    <div className="sos-container">
-                                        <h3 style={{marginBottom: '0.5rem', color: isHolding ? 'var(--danger-main)' : 'white', transition:'color 0.3s'}}>Emergency Relay</h3>
-                                        <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem'}}>Hold for 2 seconds to alert authorities</p>
-                                        
-                                        <button 
-                                            className={`sos-btn ${isHolding ? 'holding' : ''}`}
-                                            onMouseDown={handleSosStart}
-                                            onMouseUp={handleSosEnd}
-                                            onMouseLeave={handleSosEnd}
-                                            onTouchStart={handleSosStart}
-                                            onTouchEnd={handleSosEnd}
-                                        >
-                                            SOS
-                                        </button>
-                                    </div>
+                                <div className="bg-slate-800/60 backdrop-blur-2xl border border-red-500/20 rounded-[32px] p-10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center text-center relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(circle,rgba(239,68,68,0.1)_0%,transparent_70%)] pointer-events-none"></div>
+
+                                    <h3 className={`text-2xl font-black mb-3 transition-colors duration-300 ${isHolding ? 'text-red-500' : 'text-white'} relative z-10`}>Emergency Relay</h3>
+                                    <p className="text-sm text-red-200/60 font-semibold uppercase tracking-wider mb-10 max-w-[220px] relative z-10">Hold for 2 seconds to silently alert authorities.</p>
+                                    
+                                    <button 
+                                        className={`relative w-48 h-48 rounded-full bg-gradient-to-br from-red-500 to-rose-700 border-none text-white text-5xl font-black shadow-[0_0_50px_rgba(239,68,68,0.6),inset_0_4px_15px_rgba(255,255,255,0.4)] transition-all duration-300 outline-none flex items-center justify-center select-none active:scale-95 ${isHolding ? 'sos-btn-holding scale-95 shadow-[0_0_80px_rgba(239,68,68,1)]' : ''} z-10`}
+                                        onMouseDown={handleSosStart}
+                                        onMouseUp={handleSosEnd}
+                                        onMouseLeave={handleSosEnd}
+                                        onTouchStart={handleSosStart}
+                                        onTouchEnd={handleSosEnd}
+                                    >
+                                        <div className="absolute inset-0 rounded-full border-[6px] border-red-500 opacity-0 transition-opacity" style={{inset: '-18px', zIndex: -1}}></div>
+                                        SOS
+                                    </button>
                                 </div>
 
                                 {/* Live Activity */}
-                                <div className="glass-panel" style={{flex: 1, padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
-                                    <div style={{padding: '1.5rem', borderBottom: '1px solid var(--glass-border)'}}>
-                                        <h3>Live Community Feed</h3>
+                                <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden relative">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-blue-600"></div>
+
+                                    <div className="p-7 border-b border-white/10 flex justify-between items-center bg-slate-900/60">
+                                        <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-3 drop-shadow-md"><IconShield/> Community Feed</h3>
                                     </div>
-                                    <div style={{overflowY: 'auto', maxHeight: '200px'}}>
-                                        <div className="feed-item">
-                                            <div style={{marginTop:'3px'}}><IconAlert/></div>
+                                    <div className="overflow-y-auto max-h-[280px] p-4 text-white">
+                                        <div className="p-5 mb-3 rounded-2xl hover:bg-white/10 transition-colors flex gap-5 border border-transparent hover:border-white/10 cursor-pointer shadow-sm">
+                                            <div className="mt-1 text-amber-500 bg-amber-500/10 p-2 rounded-full h-fit"><IconAlert/></div>
                                             <div>
-                                                <div style={{display: 'flex', alignItems: 'center', gap:'0.5rem', marginBottom:'0.2rem'}}>
-                                                    <span style={{fontWeight: 600}}>Suspicious Activity</span>
-                                                    <span className="badge warning">Warning</span>
+                                                <div className="flex flex-wrap items-center gap-3 mb-2">
+                                                    <span className="font-black text-base">Suspicious Activity</span>
+                                                    <span className="text-[10px] font-black px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-widest">Warning</span>
                                                 </div>
-                                                <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)'}}>Reported 2 mins ago near 5th Ave.</div>
+                                                <div className="text-sm text-slate-400 font-semibold">Reported 2 mins ago near 5th Ave.</div>
                                             </div>
                                         </div>
-                                        <div className="feed-item">
-                                            <div style={{marginTop:'3px', color: 'var(--accent-main)'}}><IconMapPin/></div>
+                                        <div className="p-5 rounded-2xl hover:bg-white/10 transition-colors flex gap-5 border border-transparent hover:border-white/10 cursor-pointer shadow-sm">
+                                            <div className="mt-1 text-sky-400 bg-sky-500/10 p-2 rounded-full h-fit"><IconMapPin/></div>
                                             <div>
-                                                <div style={{display: 'flex', alignItems: 'center', gap:'0.5rem', marginBottom:'0.2rem'}}>
-                                                    <span style={{fontWeight: 600}}>Area Secured</span>
-                                                    <span className="badge safe">Safe</span>
+                                                <div className="flex flex-wrap items-center gap-3 mb-2">
+                                                    <span className="font-black text-base">Area Secured</span>
+                                                    <span className="text-[10px] font-black px-2.5 py-1 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase tracking-widest">Safe</span>
                                                 </div>
-                                                <div style={{fontSize: '0.85rem', color: 'var(--text-secondary)'}}>Patrol confirmed safe passage on Broadway.</div>
+                                                <div className="text-sm text-slate-400 font-semibold">Patrol confirmed safe passage on Broadway.</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </main>
 
                     {/* Toasts */}
-                    <div className="toast-container">
-                        {toasts.map(toast => (
-                            <div key={toast.id} className={`toast ${toast.type}`}>
-                                {toast.type === 'danger' ? <IconAlert/> : <IconMapPin/>}
-                                {toast.msg}
+                    <div className="fixed bottom-10 right-10 flex flex-col gap-5 z-[2000]">
+                        {toasts.map(t => (
+                            <div key={t.id} className={`flex items-center gap-4 px-7 py-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-slate-800/95 backdrop-blur-2xl border font-bold text-base text-white animate-slide-in ${t.type === 'danger' ? 'border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]' : 'border-sky-500/50 shadow-[0_0_30px_rgba(14,165,233,0.2)]'}`}>
+                                {t.type === 'danger' ? <span className="text-red-500 bg-red-500/10 p-2 rounded-full"><IconAlert/></span> : <span className="text-sky-400 bg-sky-500/10 p-2 rounded-full"><IconMapPin/></span>}
+                                <span className="tracking-wide">{t.msg}</span>
                             </div>
                         ))}
                     </div>
                 </div>
             );
         };
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
