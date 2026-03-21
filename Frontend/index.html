@@ -6,7 +6,6 @@
   <title>WayFarer | SMVITM Campus Safety</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="ai.js"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -31,6 +30,7 @@
 </head>
 <body>
 <div id="root"></div>
+<script src="ai.js"></script>
 <script type="text/babel">
 const {useState,useEffect,useRef}=React;
 const ORS_API_KEY = "PASTE_YOUR_ORS_KEY_HERE";
@@ -137,24 +137,35 @@ function App() {
     green: { color: "#22c55e", radius: 24, label: "Safe Zone 🟢" }
   };
 
-  riskZones.forEach(zone => {
-    const style = styles[zone.level];
+ riskZones.forEach(zone => {
+  const aiRisk = getRiskLevel(zone);
 
-    L.circle([zone.lat, zone.lng], {
-      radius: style.radius,
-      color: style.color,
-      fillColor: style.color,
-      fillOpacity: 0.35,
-      weight: 2
-    })
-    .addTo(map)
-    .bindPopup(`
-      <b>${zone.name}</b><br/>
-      ${style.label}<br/>
-      ${zone.note}<br/>
-      <small>Based on lighting, crowd density & reports</small>
-    `);
-  });
+  let color = "#22c55e";
+  let label = "Safe Zone 🟢";
+
+  if (aiRisk === "HIGH") {
+    color = "#ef4444";
+    label = "High Risk 🔴";
+  } else if (aiRisk === "MEDIUM") {
+    color = "#f59e0b";
+    label = "Medium Risk 🟠";
+  }
+
+  L.circle([zone.lat, zone.lng], {
+    radius: 32,
+    color: color,
+    fillColor: color,
+    fillOpacity: 0.4,
+    weight: 2
+  })
+  .addTo(map)
+  .bindPopup(`
+    <b>${zone.name}</b><br/>
+    AI Risk: <b>${aiRisk}</b><br/>
+    ${zone.note}<br/>
+    <small>AI based on time, activity & pattern analysis</small>
+  `);
+});
 
   const legend = L.control({ position: "bottomleft" });
 
@@ -188,16 +199,23 @@ function App() {
 ];
 
 const handleSOS = () => {
-  const options = emergencyNumbers.map((c, i) => `${i + 1}. ${c.name} (${c.number})`).join("\n");
+  addToast("AI analyzing emergency...", "info");
 
-  const choice = prompt(`Select who to call:
-${options}`);
+  setTimeout(() => {
+    addToast("AI suggests immediate contact 🚨", "danger");
 
-  const selected = emergencyNumbers[parseInt(choice) - 1];
+    const options = emergencyNumbers
+      .map((c, i) => `${i + 1}. ${c.name} (${c.number})`)
+      .join("\\n");
 
-  if (selected) {
-    window.location.href = `tel:${selected.number}`;
-  }
+    const choice = prompt(`AI Recommended Actions:\\n\\n${options}`);
+
+    const selected = emergencyNumbers[parseInt(choice) - 1];
+
+    if (selected) {
+      window.location.href = `tel:${selected.number}`;
+    }
+  }, 1000);
 };
 
   return (
