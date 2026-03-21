@@ -1,0 +1,4 @@
+# This project is a static frontend site relying on external CDNs for React and Tailwind.
+# Currently, there are no backend Python dependencies required to run the project.
+# You can serve these pages using any static file server, such as:
+# python -m http.server 8000
