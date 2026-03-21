@@ -1,471 +1,271 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>WayFarer | Interactive Experience</title>
-        <!-- Fonts -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap"
-            rel="stylesheet"
-        />
-        <script
-            crossorigin
-            src="https://unpkg.com/react@18/umd/react.production.min.js"
-        ></script>
-        <script
-            crossorigin
-            src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
-        ></script>
-        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        colors: {
-                            base: "#0b1121",
-                            surface: "rgba(17, 24, 39, 0.7)",
-                            border: "rgba(56, 189, 248, 0.25)",
-                            accent: "#22d3ee",
-                            accentStrong: "#38bdf8",
-                            danger: "#ef4444",
-                            warning: "#f59e0b",
-                            success: "#10b981",
-                        },
-                        fontFamily: { sans: ["Inter", "sans-serif"] },
-                    },
-                },
-            };
-        </script>
-        <style>
-            body {
-                background-color: #0b1121;
-                color: #e2e8f0;
-                background-image:
-                    radial-gradient(
-                        circle at 15% 40%,
-                        rgba(34, 211, 238, 0.12) 0%,
-                        transparent 55%
-                    ),
-                    radial-gradient(
-                        circle at 85% 20%,
-                        rgba(59, 130, 246, 0.12) 0%,
-                        transparent 50%
-                    );
-            }
-            .map-bg {
-                background-image:
-                    linear-gradient(
-                        rgba(56, 189, 248, 0.08) 1px,
-                        transparent 1px
-                    ),
-                    linear-gradient(
-                        90deg,
-                        rgba(56, 189, 248, 0.08) 1px,
-                        transparent 1px
-                    );
-                background-size: 40px 40px;
-            }
-            .marker-pulse {
-                animation: pulse-ring 2s infinite
-                    cubic-bezier(0.25, 0.8, 0.25, 1);
-            }
-            @keyframes pulse-ring {
-                0% {
-                    transform: translate(-50%, -50%) scale(1);
-                    opacity: 0.8;
-                }
-                100% {
-                    transform: translate(-50%, -50%) scale(3);
-                    opacity: 0;
-                }
-            }
-            /* Toast animation */
-            @keyframes slide-in {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            .animate-slide-in {
-                animation: slide-in 0.3s ease forwards;
-            }
-            /* SOS Spin */
-            @keyframes spin-border {
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-            .sos-btn-holding::before {
-                opacity: 1;
-                animation: spin-border 1s linear infinite;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="root"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WayFarer | SMVITM Campus Safety</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ["Inter","sans-serif"] } } } };
+  </script>
+  <style>
+    body {
+      background:#0b1121;
+      color:#e2e8f0;
+      background-image:
+        radial-gradient(circle at 15% 40%, rgba(34,211,238,0.12) 0%, transparent 55%),
+        radial-gradient(circle at 85% 20%, rgba(59,130,246,0.12) 0%, transparent 50%);
+    }
+    #map { height: 520px; width: 100%; z-index: 1; }
+    .leaflet-container { background: #0c162d; }
+    @keyframes slide-in { from { transform: translateX(100%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+    .animate-slide-in { animation: slide-in .3s ease forwards; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+const ORS_API_KEY = "PASTE_YOUR_ORS_KEY_HERE";
+const CAMPUS_CENTER = [13.25472, 74.78558];
+const campusLocations = [
+  { id: 1, name: "Main Gate", lat: 13.25472, lng: 74.78558, type: "gate" },
+  { id: 2, name: "Academic Block", lat: 13.25505, lng: 74.78595, type: "academic" },
+  { id: 3, name: "Library Block", lat: 13.25496, lng: 74.78541, type: "academic" },
+  { id: 4, name: "Security Office", lat: 13.25458, lng: 74.78582, type: "security" },
+  { id: 5, name: "Clinic / First Aid", lat: 13.25442, lng: 74.78528, type: "medical" },
+  { id: 6, name: "Boys Hostel Side", lat: 13.25532, lng: 74.78622, type: "hostel" },
+  { id: 7, name: "Girls Hostel Side", lat: 13.25408, lng: 74.78598, type: "hostel" }
+];
+const riskZones = [
+  { id: 1, name: "Low Lighting Corridor", lat: 13.25418, lng: 74.78516, level: "red", note: "Low lighting after 8 PM" },
+  { id: 2, name: "Isolated Walkway", lat: 13.25526, lng: 74.78602, level: "orange", note: "Sparse footfall in late evening" },
+  { id: 3, name: "Security Corridor", lat: 13.25463, lng: 74.78578, level: "green", note: "Patrol-heavy and well lit" },
+  { id: 4, name: "Parking Side Stretch", lat: 13.25492, lng: 74.78628, level: "orange", note: "Moderate lighting, limited footfall" },
+  { id: 5, name: "Main Gate Safe Belt", lat: 13.25470, lng: 74.78564, level: "green", note: "High visibility and frequent patrol" }
+];
 
-        <script type="text/babel">
-            const { useState, useEffect, useRef } = React;
+function App() {
+  const [toasts, setToasts] = useState([]);
+  const [mapStyle, setMapStyle] = useState("imagery");
+  const mapRef = useRef(null);
+  const routeLayerRef = useRef(null);
+  const baseLayerRef = useRef(null);
+  const labelLayerRef = useRef(null);
 
-            const IconAlert = () => (
-                <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-            );
-            const IconMapPin = () => (
-                <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                </svg>
-            );
-            const IconShield = () => (
-                <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-            );
+  const addToast = (msg, type = "info") => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2600);
+  };
 
-            const initialMarkers = [
-                { id: 1, x: 30, y: 40, type: "safe", label: "Clear Route" },
-                {
-                    id: 2,
-                    x: 70,
-                    y: 30,
-                    type: "warning",
-                    label: "Poor Lighting",
-                },
-                {
-                    id: 3,
-                    x: 50,
-                    y: 70,
-                    type: "danger",
-                    label: "Recent Incident",
-                },
-                { id: 4, x: 80, y: 80, type: "safe", label: "Patrol Area" },
-            ];
+  const getNearestSecurity = () => campusLocations.find(l => l.type === "security");
 
-            const App = () => {
-                const [toasts, setToasts] = useState([]);
-                const [isHolding, setIsHolding] = useState(false);
-                const holdTimeoutRef = useRef(null);
+  const switchBasemap = (style) => {
+    setMapStyle(style);
+    if (!mapRef.current) return;
+    if (baseLayerRef.current) mapRef.current.removeLayer(baseLayerRef.current);
+    if (labelLayerRef.current) mapRef.current.removeLayer(labelLayerRef.current);
 
-                const addToast = (msg, type = "info") => {
-                    const id = Date.now();
-                    setToasts((prev) => [...prev, { id, msg, type }]);
-                    setTimeout(
-                        () =>
-                            setToasts((prev) =>
-                                prev.filter((t) => t.id !== id),
-                            ),
-                        4000,
-                    );
-                };
+    if (style === "imagery") {
+      baseLayerRef.current = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        { attribution: "Tiles © Esri" }
+      ).addTo(mapRef.current);
+      labelLayerRef.current = L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png",
+        { subdomains: "abcd", attribution: "© OpenStreetMap contributors © CARTO", opacity: 0.9 }
+      ).addTo(mapRef.current);
+    } else {
+      baseLayerRef.current = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        { attribution: "© OpenStreetMap contributors" }
+      ).addTo(mapRef.current);
+    }
+  };
 
-                const handleSosStart = () => {
-                    setIsHolding(true);
-                    addToast(
-                        "Holding SOS... Keep holding to broadcast.",
-                        "info",
-                    );
-                    holdTimeoutRef.current = setTimeout(() => {
-                        addToast(
-                            "🚨 SOS BROADCASTED TO EMERGENCY CONTACTS!",
-                            "danger",
-                        );
-                        setIsHolding(false);
-                    }, 2000);
-                };
+  const drawRoute = async (start, end, color = "#38bdf8") => {
+    try {
+      if (!ORS_API_KEY || ORS_API_KEY === "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImVjODhhZGUwZWQ1ZjQzODQ4M2ZiZTVlYTZhOWM1ZWFjIiwiaCI6Im11cm11cjY0In0=") {
+        addToast("API key missing or not loaded.", "warning");
+        return;
+      }
+      const res = await fetch("https://corsproxy.io/?https://api.openrouteservice.org/v2/directions/foot-walking/geojson", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: ORS_API_KEY.trim() },
+        body: JSON.stringify({ coordinates: [[start.lng, start.lat], [end.lng, end.lat]] })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        console.error(txt);
+        throw new Error("Route request failed");
+      }
+      const data = await res.json();
+      if (routeLayerRef.current) mapRef.current.removeLayer(routeLayerRef.current);
+      const coords = data.features[0].geometry.coordinates.map(c => [c[1], c[0]]);
+      routeLayerRef.current = L.polyline(coords, { color, weight: 5 }).addTo(mapRef.current);
+      const summary = data.features[0].properties.summary;
+      addToast(`Route loaded: ${summary.distance.toFixed(0)} m • ${Math.ceil(summary.duration / 60)} min`, "info");
+    } catch (err) {
+      console.error(err);
+      addToast("Route failed. Recheck ORS key in this file.", "danger");
+    }
+  };
 
-                const handleSosEnd = () => {
-                    if (isHolding) {
-                        clearTimeout(holdTimeoutRef.current);
-                        setIsHolding(false);
-                        addToast("SOS cancelled.", "info");
-                    }
-                };
+  useEffect(() => {
+  const map = L.map("map").setView(CAMPUS_CENTER, 19);
+  mapRef.current = map;
 
-                return (
-                    <div className="pb-16 min-h-screen">
-                        {/* Navigation */}
-                        <nav className="fixed top-0 left-0 right-0 px-6 py-4 flex flex-col md:flex-row justify-between items-center bg-[#0B1121]/80 backdrop-blur-2xl border-b border-sky-500/20 z-50 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                            <div className="text-2xl font-black tracking-tight flex items-center gap-3 mb-4 md:mb-0 text-white">
-                                <img src="logo.png" alt="Logo" className="w-8 h-8 drop-shadow-md" />
-                                <span>Way<span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-blue-500">Farer</span></span>
-                            </div>
-                            <div className="flex flex-wrap items-center justify-center gap-4">
-                                <button
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500 hover:text-white transition-all text-sm font-black uppercase tracking-wider shadow-sm hover:shadow-[0_0_20px_rgba(239,68,68,0.5)]"
-                                    onClick={() =>
-                                        (window.location.href =
-                                            "reportincid.html")
-                                    }
-                                >
-                                    <IconAlert /> Report
-                                </button>
-                                <button
-                                    className="px-5 py-2.5 bg-gradient-to-r from-sky-400 to-blue-600 border border-sky-400/50 text-white rounded-xl hover:scale-105 transition-all text-sm font-black uppercase tracking-wider shadow-[0_0_20px_rgba(14,165,233,0.4)]"
-                                    onClick={() =>
-                                        (window.location.href =
-                                            "dangermap.html")
-                                    }
-                                >
-                                    Danger Map
-                                </button>
-                                <button
-                                    className="px-5 py-2.5 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl hover:bg-amber-500 hover:text-white transition-all text-sm font-black uppercase tracking-wider shadow-sm hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]"
-                                    onClick={() =>
-                                        (window.location.href =
-                                            "securitydash.html")
-                                    }
-                                >
-                                    Security Center
-                                </button>
-                                <button
-                                    className="w-11 h-11 flex items-center justify-center bg-slate-800 text-sky-300 rounded-full hover:bg-sky-500 hover:text-white transition-all border border-sky-500/30 shadow-md"
-                                    onClick={() =>
-                                        (window.location.href = "profile.html")
-                                    }
-                                >
-                                    <svg
-                                        width="20"
-                                        height="20"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2.5"
-                                    >
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
-                                </button>
-                            </div>
-                        </nav>
+  switchBasemap("imagery");
 
-                        {/* Main Content */}
-                        <main className="max-w-[1200px] mx-auto pt-40 px-6 relative z-10">
-                            <header className="mb-10 text-center md:text-left">
-                                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 text-sm font-black uppercase tracking-widest rounded-full border border-emerald-500/30 mb-6 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-[pulse_2s_infinite]"></div>{" "}
-                                    Live Protection Active
-                                </div>
-                                <h1 className="text-5xl md:text-6xl lg:text-7xl font-black mb-4 text-white tracking-tighter leading-tight drop-shadow-lg">
-                                    Your surroundings{" "}
-                                    <br className="hidden md:block" />
-                                    are secured.
-                                </h1>
-                                <p className="text-xl text-sky-200 font-semibold mb-2">
-                                    Community shield monitoring is engaged.
-                                </p>
-                            </header>
+  campusLocations.forEach(loc => {
+    L.marker([loc.lat, loc.lng])
+      .addTo(map)
+      .bindPopup(`<b>${loc.name}</b><br/>${loc.type}`);
+  });
 
-                            <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-10 mt-12">
-                                {/* Left Col: Map */}
-                                <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col gap-6 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(circle,rgba(56,189,248,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+  const styles = {
+    red: { color: "#ef4444", radius: 35, label: "High Risk 🔴" },
+    orange: { color: "#f59e0b", radius: 28, label: "Medium Risk 🟠" },
+    green: { color: "#22c55e", radius: 24, label: "Safe Zone 🟢" }
+  };
 
-                                    <div className="flex justify-between items-center relative z-10">
-                                        <h3 className="flex items-center gap-3 text-2xl font-black text-white drop-shadow-md">
-                                            <IconMapPin /> Neighborhood Radar
-                                        </h3>
-                                        <span className="text-xs font-black px-3 py-1.5 bg-sky-500/20 text-sky-300 rounded-lg border border-sky-400/30 tracking-widest uppercase">
-                                            Live Sync
-                                        </span>
-                                    </div>
+  riskZones.forEach(zone => {
+    const style = styles[zone.level];
 
-                                    <div className="relative h-[480px] rounded-2xl overflow-hidden bg-[#0c162d] border border-sky-500/20 flex flex-col shadow-inner z-10">
-                                        <div className="absolute inset-0 map-bg opacity-70"></div>
+    L.circle([zone.lat, zone.lng], {
+      radius: style.radius,
+      color: style.color,
+      fillColor: style.color,
+      fillOpacity: 0.35,
+      weight: 2
+    })
+    .addTo(map)
+    .bindPopup(`
+      <b>${zone.name}</b><br/>
+      ${style.label}<br/>
+      ${zone.note}<br/>
+      <small>Based on lighting, crowd density & reports</small>
+    `);
+  });
 
-                                        {initialMarkers.map((m) => {
-                                            const color =
-                                                m.type === "danger"
-                                                    ? "#ef4444"
-                                                    : m.type === "warning"
-                                                      ? "#f59e0b"
-                                                      : "#38bdf8";
-                                            return (
-                                                <div
-                                                    key={m.id}
-                                                    className="absolute w-4 h-4 rounded-full -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 transition-transform hover:scale-150"
-                                                    style={{
-                                                        left: `${m.x}%`,
-                                                        top: `${m.y}%`,
-                                                        backgroundColor: color,
-                                                        boxShadow: `0 0 20px ${color}`,
-                                                    }}
-                                                    onClick={() =>
-                                                        addToast(
-                                                            `Location Update: ${m.label}`,
-                                                            m.type,
-                                                        )
-                                                    }
-                                                >
-                                                    <div
-                                                        className="absolute top-1/2 left-1/2 w-full h-full rounded-full marker-pulse"
-                                                        style={{
-                                                            backgroundColor:
-                                                                color,
-                                                        }}
-                                                    ></div>
-                                                </div>
-                                            );
-                                        })}
+  const legend = L.control({ position: "bottomleft" });
 
-                                        <div className="absolute bottom-5 right-5 bg-slate-900/90 backdrop-blur-md px-5 py-2.5 rounded-xl text-sm font-black uppercase tracking-wider text-sky-400 border border-sky-500/30 shadow-lg">
-                                            Interactive Radar
-                                        </div>
-                                    </div>
-                                </div>
+  legend.onAdd = function () {
+    const div = L.DomUtil.create("div", "info legend");
+    div.innerHTML = `
+      <div style="background:#111;padding:10px;border-radius:10px;color:white;font-size:12px">
+        <b>Risk Levels</b><br/>
+        🔴 High Risk<br/>
+        🟠 Medium Risk<br/>
+        🟢 Safe Zone
+      </div>
+    `;
+    return div;
+  };
 
-                                {/* Right Col: Controls & Activity */}
-                                <div className="flex flex-col gap-10">
-                                    {/* SOS Panel */}
-                                    <div className="bg-slate-800/60 backdrop-blur-2xl border border-red-500/20 rounded-[32px] p-10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center text-center relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(circle,rgba(239,68,68,0.1)_0%,transparent_70%)] pointer-events-none"></div>
+  legend.addTo(map);
 
-                                        <h3
-                                            className={`text-2xl font-black mb-3 transition-colors duration-300 ${isHolding ? "text-red-500" : "text-white"} relative z-10`}
-                                        >
-                                            Emergency Relay
-                                        </h3>
-                                        <p className="text-sm text-red-200/60 font-semibold uppercase tracking-wider mb-10 max-w-[220px] relative z-10">
-                                            Hold for 2 seconds to silently alert
-                                            authorities.
-                                        </p>
+}, []);
 
-                                        <button
-                                            className={`relative w-48 h-48 rounded-full bg-gradient-to-br from-red-500 to-rose-700 border-none text-white text-5xl font-black shadow-[0_0_50px_rgba(239,68,68,0.6),inset_0_4px_15px_rgba(255,255,255,0.4)] transition-all duration-300 outline-none flex items-center justify-center select-none active:scale-95 ${isHolding ? "sos-btn-holding scale-95 shadow-[0_0_80px_rgba(239,68,68,1)]" : ""} z-10`}
-                                            onMouseDown={handleSosStart}
-                                            onMouseUp={handleSosEnd}
-                                            onMouseLeave={handleSosEnd}
-                                            onTouchStart={handleSosStart}
-                                            onTouchEnd={handleSosEnd}
-                                        >
-                                            <div
-                                                className="absolute inset-0 rounded-full border-[6px] border-red-500 opacity-0 transition-opacity"
-                                                style={{
-                                                    inset: "-18px",
-                                                    zIndex: -1,
-                                                }}
-                                            ></div>
-                                            SOS
-                                        </button>
-                                    </div>
 
-                                    {/* Live Activity */}
-                                    <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden relative">
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-blue-600"></div>
+  useEffect(() => {
+    if (mapRef.current) switchBasemap(mapStyle);
+  }, [mapStyle]);
 
-                                        <div className="p-7 border-b border-white/10 flex justify-between items-center bg-slate-900/60">
-                                            <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-3 drop-shadow-md">
-                                                <IconShield /> Community Feed
-                                            </h3>
-                                        </div>
-                                        <div className="overflow-y-auto max-h-[280px] p-4 text-white">
-                                            <div className="p-5 mb-3 rounded-2xl hover:bg-white/10 transition-colors flex gap-5 border border-transparent hover:border-white/10 cursor-pointer shadow-sm">
-                                                <div className="mt-1 text-amber-500 bg-amber-500/10 p-2 rounded-full h-fit">
-                                                    <IconAlert />
-                                                </div>
-                                                <div>
-                                                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                                                        <span className="font-black text-base text-white">
-                                                            Suspicious Activity
-                                                        </span>
-                                                        <span className="text-[10px] font-black px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 uppercase tracking-widest">
-                                                            Warning
-                                                        </span>
-                                                    </div>
-                                                    <div className="text-sm text-slate-400 font-semibold">
-                                                        Reported 2 mins ago near
-                                                        5th Ave.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="p-5 rounded-2xl hover:bg-white/10 transition-colors flex gap-5 border border-transparent hover:border-white/10 cursor-pointer shadow-sm">
-                                                <div className="mt-1 text-sky-400 bg-sky-500/10 p-2 rounded-full h-fit">
-                                                    <IconMapPin />
-                                                </div>
-                                                <div>
-                                                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                                                        <span className="font-black text-base text-white">
-                                                            Area Secured
-                                                        </span>
-                                                        <span className="text-[10px] font-black px-2.5 py-1 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase tracking-widest">
-                                                            Safe
-                                                        </span>
-                                                    </div>
-                                                    <div className="text-sm text-slate-400 font-semibold">
-                                                        Patrol confirmed safe
-                                                        passage on Broadway.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </main>
+  const handleQuickRoute = () => drawRoute(campusLocations[0], campusLocations[2]);
+  const emergencyNumbers = [
+  { name: "My Number", number: "+917204643772" },
+  { name: "Campus Security", number: "+911234567890" },
+  { name: "Police", number: "100" }
+];
 
-                        {/* Toasts */}
-                        <div className="fixed bottom-10 right-10 flex flex-col gap-5 z-[2000]">
-                            {toasts.map((t) => (
-                                <div
-                                    key={t.id}
-                                    className={`flex items-center gap-4 px-7 py-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-slate-800/95 backdrop-blur-2xl border font-bold text-base text-white animate-slide-in ${t.type === "danger" ? "border-red-500/50 shadow-[0_0_30px_rgba(239,68,68,0.2)]" : "border-sky-500/50 shadow-[0_0_30px_rgba(14,165,233,0.2)]"}`}
-                                >
-                                    {t.type === "danger" ? (
-                                        <span className="text-red-500 bg-red-500/10 p-2 rounded-full">
-                                            <IconAlert />
-                                        </span>
-                                    ) : (
-                                        <span className="text-sky-400 bg-sky-500/10 p-2 rounded-full">
-                                            <IconMapPin />
-                                        </span>
-                                    )}
-                                    <span className="tracking-wide">
-                                        {t.msg}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-            };
-            const root = ReactDOM.createRoot(document.getElementById("root"));
-            root.render(<App />);
-        </script>
-    </body>
+const handleSOS = () => {
+  const options = emergencyNumbers.map((c, i) => `${i + 1}. ${c.name} (${c.number})`).join("\n");
+
+  const choice = prompt(`Select who to call:
+${options}`);
+
+  const selected = emergencyNumbers[parseInt(choice) - 1];
+
+  if (selected) {
+    window.location.href = `tel:${selected.number}`;
+  }
+};
+
+  return (
+    <div className="pb-16 min-h-screen">
+      <nav className="fixed top-0 left-0 right-0 px-6 py-4 flex flex-col md:flex-row justify-between items-center bg-[#0B1121]/80 backdrop-blur-2xl border-b border-sky-500/20 z-50">
+        <div className="text-2xl font-black tracking-tight flex items-center gap-3 mb-4 md:mb-0 text-white">
+          <span>Way<span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-blue-500">Farer</span></span>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <button className="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl" onClick={() => window.location.href = "reportincid_merged_v2.html"}>Report</button>
+          <button className="px-5 py-2.5 bg-sky-500/20 text-sky-300 border border-sky-400/30 rounded-xl" onClick={() => window.location.href = "dangermap_merged_v2.html"}>Danger Map</button>
+          <button className="px-5 py-2.5 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl" onClick={() => window.location.href = "securitydash_merged_v2.html"}>Security Center</button>
+        </div>
+      </nav>
+
+      <main className="max-w-[1280px] mx-auto pt-36 px-6">
+        <header className="mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 text-sm font-black uppercase tracking-widest rounded-full border border-emerald-500/30 mb-6">
+            SMVITM Prototype Active
+          </div>
+          <h1 className="text-5xl md:text-6xl font-black mb-4 text-white tracking-tighter leading-tight">Campus safety intelligence for SMVITM.</h1>
+          <p className="text-xl text-sky-200 font-semibold">Satellite-ish view, clearer labels, and risk zones that actually show up without squinting.</p>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
+          <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] p-8 shadow-2xl">
+            <div className="flex justify-between items-center gap-4 flex-wrap mb-5">
+              <h3 className="text-2xl font-black text-white">Campus Risk Map</h3>
+              <div className="flex gap-3">
+                <button onClick={() => setMapStyle("imagery")} className="text-xs font-black px-3 py-2 bg-sky-500/20 text-sky-300 rounded-lg border border-sky-400/30 uppercase">Satellite View</button>
+                <button onClick={() => setMapStyle("osm")} className="text-xs font-black px-3 py-2 bg-white/5 text-slate-200 rounded-lg border border-white/10 uppercase">Normal View</button>
+                <button onClick={handleQuickRoute} className="text-xs font-black px-3 py-2 bg-emerald-500/20 text-emerald-300 rounded-lg border border-emerald-400/30 uppercase">Route Demo</button>
+              </div>
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-sky-500/20"><div id="map"></div></div>
+          </div>
+
+          <div className="flex flex-col gap-8">
+            <div className="bg-slate-800/60 backdrop-blur-2xl border border-red-500/20 rounded-[32px] p-8 shadow-2xl text-center">
+              <h3 className="text-2xl font-black mb-3 text-white">Emergency Relay</h3>
+              <p className="text-sm text-red-200/70 font-semibold uppercase tracking-wider mb-8">Route to nearest security office.</p>
+              <button onClick={handleSOS} className="w-40 h-40 rounded-full bg-gradient-to-br from-red-500 to-rose-700 text-white text-5xl font-black shadow-[0_0_50px_rgba(239,68,68,0.6)]">SOS</button>
+            </div>
+
+            <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] p-6 shadow-2xl">
+              <h3 className="text-xl font-black text-white mb-4">Zone Legend</h3>
+              <div className="space-y-3 text-sm">
+                <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30"><div className="font-bold text-white">Red Zone</div><div className="text-slate-300">Low lighting area at night, blind spots, recent complaints</div></div>
+                <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30"><div className="font-bold text-white">Orange Zone</div><div className="text-slate-300">Moderate caution, lower crowd density after evening</div></div>
+                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30"><div className="font-bold text-white">Green Zone</div><div className="text-slate-300">Safe corridor, patrol-backed and better visibility</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <div className="fixed top-24 right-5 z-[9999] space-y-3 w-[310px]">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`animate-slide-in rounded-xl px-4 py-3 border text-sm font-semibold shadow-xl ${
+            toast.type === "danger" ? "bg-red-500/20 border-red-500/40 text-red-100" :
+            toast.type === "warning" ? "bg-amber-500/20 border-amber-500/40 text-amber-100" :
+            "bg-slate-900/90 border-sky-500/30 text-sky-100"
+          }`}>{toast.msg}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
 </html>
