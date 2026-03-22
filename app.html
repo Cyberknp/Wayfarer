@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WayFarer | Safety in Every Step</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { base: "#0b1121", surface: "#111827", accent: "#22d3ee", accentStrong: "#38bdf8", border: "rgba(56,189,248,0.2)" },
+          fontFamily: { sans: ["Inter", "sans-serif"] },
+          animation: {
+            "fade-up": "fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            "form-enter": "formEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+          },
+          keyframes: {
+            fadeUp: { "0%": { opacity: "0", transform: "translateY(30px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+            formEnter: { "0%": { opacity: "0", transform: "scale(0.95) translateY(20px)" }, "100%": { opacity: "1", transform: "scale(1) translateY(0)" } },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { background:#0b1121; color:#e2e8f0; font-family: Inter, sans-serif; overflow-x: hidden; }
+    #map { height: 520px; width: 100%; z-index: 1; }
+    .leaflet-container { background: #0c162d; }
+    @keyframes slide-in { from { transform: translateX(100%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+    .animate-slide-in { animation: slide-in .3s ease forwards; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0b1121; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+</head>
+<body class="bg-[#0b1121] text-slate-100 min-h-screen">
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// AI logic imported from ai.js
+function getRiskLevel(zone) {
+  const hour = new Date().getHours();
+  let score = 0;
+  if (hour >= 20 || hour <= 5) score += 2;
+  if (zone.level === "red") score += 3;
+  if (zone.level === "orange") score += 2;
+  if (zone.level === "green") score += 1;
+  if (Math.random() > 0.7) score += 2;
+  if (score >= 5) return "HIGH";
+  if (score >= 3) return "MEDIUM";
+  return "LOW";
+}
+
+const Welcome = ({ setView }) => {
+  useEffect(() => {
+    const container = document.getElementById("welcome-container");
+    if (!container) return;
+    const elements = [];
+    for (let i = 0; i < 25; i++) {
+      const el = document.createElement("div");
+      el.className = "absolute rounded-full pointer-events-none shadow-[0_0_15px_#38bdf8]";
+      el.style.backgroundColor = "#38bdf8";
+      const size = Math.random() * 5 + 2;
+      el.style.width = size + "px"; el.style.height = size + "px";
+      el.style.left = Math.random() * 100 + "vw"; el.style.top = Math.random() * 100 + "vh";
+      el.style.opacity = Math.random() * 0.6 + 0.2;
+      const duration = Math.random() * 15 + 10;
+      el.animate([
+        { transform: `translateY(0px) translateX(0px)` },
+        { transform: `translateY(-${Math.random() * 200 + 100}px) translateX(${Math.random() * 100 - 50}px)` }
+      ], { duration: duration * 1000, iterations: Infinity, direction: "alternate", easing: "ease-in-out" });
+      container.appendChild(el);
+      elements.push(el);
+    }
+    return () => elements.forEach(el => el.remove());
+  }, []);
+
+  return (
+    <div id="welcome-container" className="h-screen flex items-center justify-center relative bg-[#0b1121] text-slate-100 overflow-hidden">
+      <div className="absolute w-[60vw] h-[60vw] bg-[radial-gradient(circle,rgba(34,211,238,0.22)_0%,transparent_60%)] -top-[20%] -left-[20%] rounded-full pointer-events-none"></div>
+      <div className="absolute w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(59,130,246,0.18)_0%,transparent_60%)] -bottom-[20%] -right-[10%] rounded-full pointer-events-none"></div>
+      <div className="absolute w-[40vw] h-[40vw] bg-[radial-gradient(circle,rgba(45,212,191,0.14)_0%,transparent_60%)] top-[10%] right-[10%] rounded-full pointer-events-none"></div>
+      <div className="z-10 text-center max-w-3xl p-8 opacity-0 animate-fade-up">
+        <div className="relative">
+          <img src="Frontend/logo.png" alt="WayFarer Logo" className="w-24 h-24 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(56,189,248,0.6)]" onError={(e) => { e.target.src="logo.png"; e.target.onerror=null; }} />
+          <div className="inline-block px-5 py-2 mb-8 rounded-full bg-gradient-to-r from-sky-500/20 to-blue-600/20 border border-sky-400/30 text-sky-300 text-sm font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(14,165,233,0.2)]">Next-Gen Personal Security</div>
+          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6 text-white drop-shadow-xl">Safe wherever <br /> you <span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-blue-500 drop-shadow-[0_0_35px_rgba(56,189,248,0.8)]">roam.</span></h1>
+          <p className="text-xl text-blue-100/70 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">WayFarer connects you to a live community shield, offering instant SOS alerts, dynamic danger mapping, and ultimate peace of mind.</p>
+          <button onClick={() => setView('login')} className="inline-flex items-center gap-3 bg-gradient-to-r from-sky-400 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-bold hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(56,189,248,0.5)] border border-sky-300/50 hover:shadow-[0_0_50px_rgba(56,189,248,0.8)]">
+            Get Started
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InputField = ({ id, type, label }) => (
+  <div className="relative mb-6">
+    <input type={type} id={id} className="peer w-full bg-slate-900/60 border border-slate-700/80 px-4 pt-6 pb-2 rounded-xl text-white placeholder-transparent focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-400/50 focus:bg-slate-900/90 transition-all duration-300 shadow-inner" placeholder=" " required />
+    <label htmlFor={id} className="absolute left-4 top-4 text-slate-400 text-sm transition-all duration-300 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-sky-400 flex items-center bg-transparent pointer-events-none font-medium" style={{ transform: "translateY(-2px)" }}>{label}</label>
+  </div>
+);
+
+const Login = ({ setView }) => {
+  const [mode, setMode] = useState("signin");
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerText = "Authenticating...";
+    btn.classList.add("opacity-80", "cursor-wait");
+    setTimeout(() => setView("dashboard"), 800);
+  };
+  return (
+    <div className="min-h-screen flex items-center justify-center overflow-hidden relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(34,211,238,0.18)_0%,transparent_60%)] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_80%,rgba(59,130,246,0.14)_0%,transparent_50%)] pointer-events-none"></div>
+      <div className="w-full max-w-[440px] px-4 z-10">
+        <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-400/20 rounded-3xl p-8 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8),0_0_30px_rgba(14,165,233,0.1)] relative overflow-hidden animate-form-enter">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500"></div>
+          <div className="text-center text-4xl font-black mb-8 text-white drop-shadow-md flex items-center justify-center gap-3">
+            <img src="Frontend/logo.png" alt="Logo" className="w-10 h-10" onError={(e) => { e.target.src="logo.png"; e.target.onerror=null; }} />
+            <span>Way<span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-blue-500">Farer</span></span>
+          </div>
+          <div className="flex bg-slate-950/60 rounded-xl p-1.5 mb-8 border border-slate-700/50 shadow-inner">
+            <button className={`flex-1 py-3 px-4 rounded-lg font-bold transition-all duration-300 ${mode === "signin" ? "bg-gradient-to-r from-sky-500/20 to-blue-500/20 text-sky-300 shadow-md border border-sky-400/30" : "text-slate-400 hover:text-white"}`} onClick={(e) => { e.preventDefault(); setMode("signin"); }}>Sign In</button>
+            <button className={`flex-1 py-3 px-4 rounded-lg font-bold transition-all duration-300 ${mode === "signup" ? "bg-gradient-to-r from-sky-500/20 to-blue-500/20 text-sky-300 shadow-md border border-sky-400/30" : "text-slate-400 hover:text-white"}`} onClick={(e) => { e.preventDefault(); setMode("signup"); }}>Create Account</button>
+          </div>
+          <form onSubmit={handleSubmit}>
+            {mode === "signup" && <InputField id="name" type="text" label="Full Name" />}
+            <InputField id="email" type="email" label="Email Address" />
+            <InputField id="password" type="password" label="Password" />
+            <button type="submit" className="w-full mt-6 bg-gradient-to-r from-sky-400 to-blue-600 text-white py-4 rounded-xl font-black text-lg hover:scale-[1.02] transition-all duration-300 shadow-[0_10px_30px_rgba(14,165,233,0.4)] border border-sky-300/30">{mode === "signin" ? "Enter Dashboard" : "Join the Community"}</button>
+          </form>
+          <div className="mt-8 text-center">
+            <button onClick={() => setView('welcome')} className="text-sm text-slate-400 font-semibold hover:text-sky-300 transition-colors flex items-center justify-center gap-2 mx-auto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg> Back to Welcome</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const NavButton = ({ label, target, setView, active = false }) => (
+  <button className={`px-5 py-2.5 rounded-xl border ${active ? 'bg-sky-500/20 text-sky-300 border-sky-400/30' : 'bg-slate-500/10 text-slate-400 hover:text-white border-slate-500/30'}`} onClick={() => setView(target)}>{label}</button>
+);
+
+const DesktopNavbar = ({ setView }) => (
+  <nav className="fixed top-0 left-0 right-0 px-6 py-4 flex flex-col md:flex-row justify-between items-center bg-[#0B1121]/80 backdrop-blur-2xl border-b border-sky-500/20 z-50">
+    <div className="text-2xl font-black tracking-tight flex items-center gap-3 mb-4 md:mb-0 text-white cursor-pointer" onClick={() => setView('dashboard')}>
+      <span>Way<span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-blue-500">Farer</span></span>
+    </div>
+    <div className="flex flex-wrap items-center justify-center gap-4">
+      <NavButton label="Report" target="reportincid" setView={setView} />
+      <NavButton label="Danger Map" target="dangermap" setView={setView} />
+      <NavButton label="Live Monitor" target="livemonitor" setView={setView} />
+      <NavButton label="Security Center" target="securitydash" setView={setView} />
+      <NavButton label="Profile" target="profile" setView={setView} />
+      <button className="px-5 py-2.5 bg-red-500/10 text-red-500 border border-red-500/30 rounded-xl hover:bg-red-500/20 transition-colors" onClick={() => setView('welcome')}>Logout</button>
+    </div>
+  </nav>
+);
+
+const Dashboard = ({ setView }) => {
+  const [toasts, setToasts] = useState([]);
+  const [mapStyle, setMapStyle] = useState("imagery");
+  const mapRef = useRef(null);
+  const routeLayerRef = useRef(null);
+  const baseLayerRef = useRef(null);
+  const labelLayerRef = useRef(null);
+
+  const addToast = (msg, type = "info") => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2600);
+  };
+
+  const CAMPUS_CENTER = [13.25472, 74.78558];
+  const campusLocations = [
+    { id: 1, name: "Main Gate", lat: 13.25472, lng: 74.78558, type: "gate" },
+    { id: 2, name: "Academic Block", lat: 13.25505, lng: 74.78595, type: "academic" },
+    { id: 3, name: "Library Block", lat: 13.25496, lng: 74.78541, type: "academic" }
+  ];
+  const riskZones = [
+    { id: 1, name: "Low Lighting Corridor", lat: 13.25418, lng: 74.78516, level: "red", note: "Low lighting after 8 PM" },
+    { id: 2, name: "Isolated Walkway", lat: 13.25526, lng: 74.78602, level: "orange", note: "Sparse footfall in late evening" },
+    { id: 3, name: "Security Corridor", lat: 13.25463, lng: 74.78578, level: "green", note: "Patrol-heavy and well lit" }
+  ];
+
+  const switchBasemap = (style) => {
+    setMapStyle(style);
+    if (!mapRef.current) return;
+    if (baseLayerRef.current) mapRef.current.removeLayer(baseLayerRef.current);
+    if (labelLayerRef.current) mapRef.current.removeLayer(labelLayerRef.current);
+    if (style === "imagery") {
+      baseLayerRef.current = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}").addTo(mapRef.current);
+      labelLayerRef.current = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png").addTo(mapRef.current);
+    } else {
+      baseLayerRef.current = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapRef.current);
+    }
+  };
+
+  useEffect(() => {
+    if (!document.getElementById("map")) return;
+    const map = L.map("map").setView(CAMPUS_CENTER, 19);
+    mapRef.current = map;
+    switchBasemap("imagery");
+    campusLocations.forEach(loc => L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(`<b>${loc.name}</b><br/>${loc.type}`));
+    riskZones.forEach(zone => {
+      const aiRisk = getRiskLevel(zone);
+      let color = aiRisk === "HIGH" ? "#ef4444" : aiRisk === "MEDIUM" ? "#f59e0b" : "#22c55e";
+      L.circle([zone.lat, zone.lng], { radius: 32, color, fillColor: color, fillOpacity: 0.4, weight: 2 }).addTo(map).bindPopup(`<b>${zone.name}</b><br/>AI Risk: <b>${aiRisk}</b><br/>${zone.note}`);
+    });
+    return () => map.remove();
+  }, []);
+
+  useEffect(() => { if (mapRef.current) switchBasemap(mapStyle); }, [mapStyle]);
+
+  const handleSOS = () => {
+    addToast("AI analyzing emergency...", "info");
+    setTimeout(() => {
+      addToast("AI suggests immediate contact 🚨", "danger");
+      setTimeout(() => {
+        const choice = prompt("AI Recommended Actions:\n1. Campus Security (+911234567890)\n2. Police (100)");
+        if (choice === "1") window.location.href = "tel:+911234567890";
+        if (choice === "2") window.location.href = "tel:100";
+      }, 500);
+    }, 1000);
+  };
+
+  return (
+    <div className="pb-16 min-h-screen">
+      <DesktopNavbar setView={setView} />
+      <main className="max-w-[1280px] mx-auto pt-36 px-6">
+        <header className="mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 text-sm font-black uppercase tracking-widest rounded-full border border-emerald-500/30 mb-6">SMVITM Prototype Active</div>
+          <h1 className="text-5xl md:text-6xl font-black mb-4 text-white tracking-tighter leading-tight">Campus safety intelligence for SMVITM.</h1>
+        </header>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
+          <div className="bg-slate-800/60 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] p-8 shadow-2xl">
+            <div className="flex justify-between items-center gap-4 flex-wrap mb-5">
+              <h3 className="text-2xl font-black text-white">Campus Risk Map</h3>
+              <div className="flex gap-3">
+                <button onClick={() => setMapStyle("imagery")} className="text-xs font-black px-3 py-2 bg-sky-500/20 text-sky-300 rounded-lg">Satellite</button>
+                <button onClick={() => setMapStyle("osm")} className="text-xs font-black px-3 py-2 bg-white/5 text-slate-200 rounded-lg">Normal</button>
+              </div>
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-sky-500/20"><div id="map"></div></div>
+          </div>
+          <div className="flex flex-col gap-8">
+            <div className="bg-slate-800/60 pt-8 pb-8 px-8 border border-red-500/20 rounded-[32px] text-center">
+              <h3 className="text-2xl font-black mb-3 text-white">Emergency Relay</h3>
+              <p className="text-sm text-red-200/70 font-semibold mb-8">Route to nearest security office.</p>
+              <button onClick={handleSOS} className="w-40 h-40 rounded-full bg-gradient-to-br from-red-500 to-rose-700 text-white text-5xl font-black mx-auto block shadow-[0_0_50px_rgba(239,68,68,0.6)]">SOS</button>
+            </div>
+          </div>
+        </div>
+      </main>
+      <div className="fixed top-24 right-5 z-[9999] space-y-3 w-[310px]">
+        {toasts.map(toast => (
+          <div key={toast.id} className={`animate-slide-in rounded-xl px-4 py-3 text-sm font-semibold shadow-xl border ${toast.type === "danger" ? "bg-red-500/20 border-red-500/40 text-red-100" : "bg-slate-900/90 border-sky-500/30 text-sky-100"}`}>{toast.msg}</div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const DangerMap = ({ setView }) => {
+  const mapRef = useRef(null);
+  const [locStatus, setLocStatus] = useState("Waiting for browser location...");
+  useEffect(() => {
+    if (!document.getElementById("dangerMap")) return;
+    const map = L.map('dangerMap').setView([13.25472, 74.78558], 18);
+    mapRef.current = map;
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+    const zones = [ { name: "Low Lighting Corridor", lat: 13.25418, lng: 74.78516, color: "red", radius: 28, desc: "Low lighting after 8 PM" } ];
+    zones.forEach(z => L.circle([z.lat, z.lng], { radius: z.radius, color: z.color }).addTo(map).bindPopup(z.name));
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          L.marker([pos.coords.latitude, pos.coords.longitude]).addTo(map).bindPopup("You are here").openPopup();
+          map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+          setLocStatus(`Live: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
+        },
+        () => setLocStatus("Location denied."),
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else { setLocStatus("Geolocation not supported."); }
+    return () => map.remove();
+  }, []);
+  return (
+    <div className="relative text-slate-100">
+      <div className="absolute top-6 left-6 z-[999] bg-slate-900/90 border border-sky-500/30 rounded-2xl p-5 w-[340px] shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-black text-white">Danger Map</h1>
+          <button onClick={() => setView('dashboard')} className="text-sky-300 text-sm hover:underline">Back</button>
+        </div>
+        <div className="space-y-3 text-sm">
+          <div className="p-3 rounded-xl bg-sky-500/15 border border-sky-500/30"><div className="font-bold text-white">Live Location</div><div className="text-slate-300">{locStatus}</div></div>
+        </div>
+      </div>
+      <div id="dangerMap" className="h-screen w-full"></div>
+    </div>
+  );
+};
+
+const LiveMonitor = ({ setView }) => {
+  const [detectionStatus, setDetectionStatus] = useState("ANALYZING");
+  const [logs, setLogs] = useState([]);
+  useEffect(() => {
+    const statuses = ["SAFE", "SAFE", "SAFE", "DANGER", "SAFE"];
+    let i = 0;
+    const interval = setInterval(() => {
+      i = (i + 1) % statuses.length;
+      setDetectionStatus(statuses[i]);
+      const timestamp = new Date().toLocaleTimeString();
+      if (statuses[i] === "DANGER") {
+        setLogs(prev => [{ time: timestamp, msg: "Suspicious activity detected! High movement speed.", type: "danger" }, ...prev].slice(0, 10));
+      } else {
+        setLogs(prev => [{ time: timestamp, msg: "Scene clear. Tracking standard movement.", type: "info" }, ...prev].slice(0, 10));
+      }
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="pb-16 min-h-screen">
+      <DesktopNavbar setView={setView} />
+      <main className="max-w-[1400px] mx-auto pt-36 px-6">
+        <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 text-sm font-black uppercase tracking-widest rounded-full border border-emerald-500/30 mb-6">Neural Vision Active</div>
+            <h1 className="text-4xl md:text-5xl font-black mb-4 text-white tracking-tighter leading-tight">Live AI Surveillance</h1>
+          </div>
+        </header>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
+          <div className="bg-slate-800/80 backdrop-blur-2xl border border-sky-500/20 rounded-[32px] p-4 lg:p-8 shadow-2xl flex flex-col">
+            <div className="w-full aspect-video bg-black rounded-2xl relative overflow-hidden ring-4 ring-black shadow-inner flex items-center justify-center group">
+              <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1541888086053-ec52b821430c?q=80&w=1600&auto=format&fit=crop')] bg-cover bg-center filter grayscale contrast-125 brightness-75"></div>
+              {detectionStatus === "DANGER" && (
+                <div className="absolute top-[30%] left-[40%] w-[15%] h-[40%] border-2 border-red-500 bg-red-500/10 flex justify-center">
+                  <span className="bg-red-500 text-white text-[10px] font-bold px-1 absolute -top-4 left-0 whitespace-nowrap">SUSPECT (98%)</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col gap-6">
+            <div className={`backdrop-blur-2xl border rounded-[32px] p-8 shadow-2xl text-center transition-colors duration-500 ${detectionStatus === 'DANGER' ? 'bg-red-500/10 border-red-500/40 shadow-[0_0_40px_rgba(239,68,68,0.2)]' : 'bg-emerald-500/10 border-emerald-500/40 shadow-[0_0_40px_rgba(16,185,129,0.1)]'}`}>
+              <h3 className="text-xl font-black mb-6 text-white uppercase tracking-widest">Global Status</h3>
+              <h2 className="text-3xl font-black text-white mb-2">{detectionStatus}</h2>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+const ReportIncident = ({ setView }) => {
+  const [statusVisible, setStatusVisible] = useState(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setStatusVisible(true);
+    e.target.reset();
+  };
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 text-slate-100">
+      <div className="w-full max-w-xl bg-slate-800/70 border border-sky-500/20 rounded-3xl p-8 shadow-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-black text-white">Report Incident</h1>
+          <button onClick={() => setView('dashboard')} className="text-sky-300 text-sm hover:underline">Back</button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block mb-2 text-sm text-slate-300">Zone</label>
+            <input name="zone" className="w-full bg-slate-900/70 border border-slate-700 rounded-xl px-4 py-3" placeholder="Low Lighting Corridor" required />
+          </div>
+          <button className="w-full bg-gradient-to-r from-sky-400 to-blue-600 text-white py-4 rounded-xl font-black">Submit Report</button>
+        </form>
+        {statusVisible && <p className="mt-4 text-sm text-emerald-400">Incident saved securely.</p>}
+      </div>
+    </div>
+  );
+};
+
+const SecurityDash = ({ setView }) => {
+  return (
+    <div className="min-h-screen flex text-slate-100">
+      <aside className="w-72 bg-zinc-950/80 border-r border-white/5 p-8">
+        <h1 className="text-cyan-400 text-2xl font-black">WayFarer</h1>
+        <p className="text-xs text-zinc-500 uppercase tracking-widest mt-1">Security Panel</p>
+        <button onClick={() => setView('dashboard')} className="block mt-8 w-full px-4 py-3 bg-amber-500/10 text-amber-400 rounded-xl text-left hover:bg-amber-500/20">Exit Admin</button>
+      </aside>
+      <main className="flex-1 p-8">
+        <header className="flex justify-between items-center mb-10">
+          <h2 className="font-extrabold text-3xl">Live Alert Dashboard</h2>
+        </header>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+          <div className="bg-slate-800/60 p-6 rounded-2xl"><div className="text-xs text-zinc-500 uppercase mb-2">Total Alerts</div><div className="text-4xl font-black">14</div></div>
+          <div className="bg-slate-800/60 p-6 rounded-2xl"><div className="text-xs text-zinc-500 uppercase mb-2">Active</div><div className="text-4xl font-black text-red-400">05</div></div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+const Profile = ({ setView }) => {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#0b1121] text-slate-100 relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_90%,rgba(34,211,238,0.2)_0%,transparent_55%)] pointer-events-none"></div>
+      <div className="w-full max-w-3xl z-10 animate-[fadeUp_0.6s_ease]">
+        <div className="flex justify-between items-center mb-8">
+          <button onClick={() => setView('dashboard')} className="inline-flex items-center gap-2 text-sky-200 hover:text-white transition-colors text-sm font-bold bg-slate-800/80 backdrop-blur-md px-5 py-2.5 rounded-xl border border-sky-400/20 shadow-lg">Back to Dashboard</button>
+          <h2 className="text-2xl font-black tracking-tight drop-shadow-md">User Profile</h2>
+        </div>
+        <div className="bg-slate-800/70 backdrop-blur-2xl border border-sky-500/30 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
+          <h1 className="text-4xl font-black text-white mb-8">John Doe</h1>
+          <button onClick={() => setView('welcome')} className="w-full bg-red-500/20 text-red-400 hover:text-white border border-red-500/40 py-4 rounded-xl font-black hover:bg-red-500 transition-all uppercase">Log Out</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  const [view, setView] = useState("welcome");
+  return (
+    <div className="w-full min-h-screen">
+      {view === "welcome" && <Welcome setView={setView} />}
+      {view === "login" && <Login setView={setView} />}
+      {view === "dashboard" && <Dashboard setView={setView} />}
+      {view === "reportincid" && <ReportIncident setView={setView} />}
+      {view === "securitydash" && <SecurityDash setView={setView} />}
+      {view === "dangermap" && <DangerMap setView={setView} />}
+      {view === "livemonitor" && <LiveMonitor setView={setView} />}
+      {view === "profile" && <Profile setView={setView} />}
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+</body>
+</html>
