@@ -284,6 +284,49 @@ const handleSOS = () => {
           }`}>{toast.msg}</div>
         ))}
       </div>
+
+      <footer className="mt-20 border-t border-white/10 pt-12 pb-8 px-6 bg-[#060A14] flex flex-col items-center">
+        <h2 className="text-3xl font-black text-white mb-2 tracking-widest uppercase">Team VEDA</h2>
+        <div className="w-16 h-1 bg-gradient-to-r from-sky-400 to-blue-500 rounded-full mb-10"></div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full text-left">
+          <div className="bg-slate-800/40 p-6 rounded-3xl border border-white/5 shadow-xl hover:border-sky-500/30 transition-colors">
+            <h3 className="text-sky-400 font-bold uppercase tracking-widest text-xs mb-5">Team Leader</h3>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-300 font-black text-2xl border border-sky-400/30">K</div>
+              <div>
+                <div className="text-white font-bold text-xl">K Nagendra Pai</div>
+                <div className="text-zinc-400 text-sm font-medium mt-1">Lead Developer</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-slate-800/40 p-6 rounded-3xl border border-white/5 shadow-xl hover:border-emerald-500/30 transition-colors">
+            <h3 className="text-emerald-400 font-bold uppercase tracking-widest text-xs mb-5">Core Members</h3>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <li className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-lg border border-emerald-500/20">S</div>
+                <span className="text-white font-medium">Surabhi Jogi</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-lg border border-emerald-500/20">N</div>
+                <span className="text-white font-medium">Nishanth Poojary</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-lg border border-emerald-500/20">P</div>
+                <span className="text-white font-medium">Preetham</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div className="mt-12 text-sm font-semibold text-zinc-500 flex flex-col md:flex-row items-center justify-between w-full max-w-4xl border-t border-white/5 pt-6">
+           <div>&copy; {new Date().getFullYear()} WayFarer Project</div>
+           <div className="mt-2 md:mt-0 flex gap-4">
+             <span>Contact: info@wayfarer.local</span>
+           </div>
+        </div>
+      </footer>
     </div>
   );
 }
