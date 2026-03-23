@@ -1,43 +1,57 @@
 # Wayfarer
 
-Wayfarer is a security-focused frontend experience built with React (via CDN) and Tailwind CSS. The UI emphasizes real‑time awareness, alerting, and a clean, modern aesthetic suitable for safety and security applications.
+Wayfarer is a comprehensive, security-focused platform designed for personal and campus safety. Featuring a modern frontend experience built with React and Tailwind CSS, and a new intelligent backend powered by machine learning, Wayfarer emphasizes real‑time awareness, dynamic alerting, and community protection.
 
 ## Highlights
-- Dark security palette with high-contrast accents
-- Interactive dashboard and SOS flows
-- React + Tailwind (CDN) for fast iteration
-- No build step required
+- **Unified Single-Page App**: Seamless navigation using `app.html` built with React.
+- **AI-Powered Risk Detection**: Built-in machine learning models (`Anomaly_detector.py`) to analyze suspicious activity and automatically identify danger zones.
+- **Interactive Security Tools**: Live Monitor, Danger Map, Incident Reporting, and Security Command Dashboard.
+- **Dark Security Palette**: High-contrast, modern UI designed for rapid situational assessment.
+- **No Complex Build Step**: The frontend uses CDN-based React and Tailwind for fast iteration.
 
 ## Project Structure
 ```
 Wayfarer/
-├─ Frontend/
-│  ├─ index.html
+├─ app.html                 # Consolidated single-page React application
+├─ Backend/
+│  ├─ Anomaly_detector.py   # AI/ML-based anomaly and danger zone detector
+│  └─ ai.js                 # Helper logic for risk level assessment
+├─ Frontend/                # Individual standalone screen prototypes
 │  ├─ welcome.html
 │  ├─ login.html
-│  ├─ profile.html
+│  ├─ index.html
+│  ├─ securitydash.html
 │  ├─ dangermap.html
+│  ├─ livemonitor.html
 │  ├─ reportincid.html
-│  └─ securitydash.html
+│  └─ profile.html
+├─ .venv/                   # Python virtual environment
+├─ requirements.txt         # Project dependencies list
 └─ LICENSE
 ```
 
 ## Getting Started
-Open any HTML file in the `Frontend/` directory with your browser:
 
-- `Frontend/welcome.html` — Landing
-- `Frontend/login.html` — Auth
-- `Frontend/index.html` — Main dashboard
-- `Frontend/securitydash.html` — Security command center
-- `Frontend/dangermap.html` — Danger map
-- `Frontend/reportincid.html` — SOS reporting
+### 1. Frontend Execution
+The simplest way to use Wayfarer is to open the consolidated application in your browser:
+- **`app.html`** — Launch the full single-page application experience.
 
-No build or server is required.
+Alternatively, you can test isolated UI screens by opening any HTML file from the `Frontend/` folder.
+
+### 2. Backend Environment Setup
+The backend utilizes Python-based Machine Learning models (Isolation Forest, KMeans) to power the incident detection logic.
+To interact with the backend AI:
+1. Ensure your terminal is in the root directory.
+2. Activate the virtual environment:
+   ```powershell
+   .\.venv\Scripts\Activate.ps1
+   ```
+3. Run the ML pipeline (requires libraries like `scikit-learn`, `pandas`, `numpy` if fully deployed):
+   ```bash
+   python Backend/Anomaly_detector.py
+   ```
 
 ## Tech Stack
-- React 18 (CDN)
-- Tailwind CSS (CDN)
-- Google Fonts (Inter)
-
-## Notes
-This is a static frontend prototype. If you want a full React project structure (Vite/CRA/Next.js), let me know and I can convert it.
+- **Frontend**: React 18 (CDN), Tailwind CSS (CDN), Leaflet Maps
+- **Backend / AI**: Python 3.x, `scikit-learn`, `pandas`, `numpy`
+- **Typography & Design**: Google Fonts (Inter), custom dark UI palette
