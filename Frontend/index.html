@@ -27,10 +27,23 @@
     @keyframes slide-in { from { transform: translateX(100%); opacity:0; } to { transform: translateX(0); opacity:1; } }
     .animate-slide-in { animation: slide-in .3s ease forwards; }
   </style>
+
+<style>
+button {
+  transition: all 0.25s ease;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(56,189,248,0.6),
+              0 0 20px rgba(59,130,246,0.5),
+              0 0 30px rgba(99,102,241,0.4);
+}
+</style>
+
 </head>
 <body>
 <div id="root"></div>
-<script src="../Backend/ai.js"></script>
+<script src="ai.js"></script>
 <script type="text/babel">
 const {useState,useEffect,useRef}=React;
 const ORS_API_KEY = "PASTE_YOUR_ORS_KEY_HERE";

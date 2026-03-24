@@ -12,6 +12,19 @@
     body { font-family: Inter, sans-serif; background:#0b1121; color:#e2e8f0; }
     #dangerMap { height:100vh; width:100%; }
   </style>
+
+<style>
+button {
+  transition: all 0.25s ease;
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(56,189,248,0.6),
+              0 0 20px rgba(59,130,246,0.5),
+              0 0 30px rgba(99,102,241,0.4);
+}
+</style>
+
 </head>
 <body>
   <div class="absolute top-6 left-6 z-[999] bg-slate-900/90 border border-sky-500/30 rounded-2xl p-5 w-[340px] shadow-2xl">
@@ -47,7 +60,7 @@
         (position) => {
           const lat = position.coords.latitude, lng = position.coords.longitude;
           L.marker([lat, lng]).addTo(map).bindPopup("You are here").openPopup();
-          map.setView([lat, lng], 16);
+          map.setView([lat, lng], 18);
           document.getElementById("locationStatus").textContent = `Live location found: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
         },
         () => { document.getElementById("locationStatus").textContent = "Location denied. Showing campus prototype view."; },
