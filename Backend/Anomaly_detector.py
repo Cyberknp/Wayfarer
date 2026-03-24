@@ -431,4 +431,8 @@ if __name__ == "__main__":
         ip_address="203.0.113.45",
         user_id="USER_999",
         action_type="transaction",
-        severity_score=85*
+        severity_score=85.0
+    )
+    
+    risk_prediction = detector.predict_activity_risk(new_activity)
+    print(json.dumps(risk_prediction, indent=2))
